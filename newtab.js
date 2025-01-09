@@ -2,6 +2,12 @@ document.addEventListener('DOMContentLoaded', async () => {
   const container = document.getElementById('mosaic-container');
   const openOptionsButton = document.getElementById('openOptions');
 
+  // Show loading state
+  container.innerHTML = `
+    <div style="text-align: center; padding-top: 40vh; color: #666;">
+      <p>Loading vision board...</p>
+    </div>`;
+
   openOptionsButton.addEventListener('click', () => {
     chrome.runtime.openOptionsPage();
   });
@@ -55,7 +61,8 @@ document.addEventListener('DOMContentLoaded', async () => {
       console.error('Error generating mosaic:', error);
       container.innerHTML = `
         <div style="text-align: center; padding-top: 40vh; color: #666;">
-          Error generating mosaic. Please try refreshing the page.
+          <p>Error generating mosaic. Please try refreshing the page.</p>
+          <p>Error details: ${error.message}</p>
         </div>`;
     }
   }
@@ -70,19 +77,23 @@ document.addEventListener('DOMContentLoaded', async () => {
     resizeTimeout = setTimeout(generateAndDisplayMosaic, 250);
   });
 
-  // Check for cached mosaic while generating new one
-  chrome.runtime.sendMessage({ type: 'GET_CACHED_MOSAIC' }, response => {
-    if (response && response.mosaic) {
-      const img = new Image();
-      img.onload = () => {
-        const tempCanvas = document.createElement('canvas');
-        tempCanvas.width = window.innerWidth;
-        tempCanvas.height = window.innerHeight;
-        const ctx = tempCanvas.getContext('2d');
-        ctx.drawImage(img, 0, 0, tempCanvas.width, tempCanvas.height);
-        container.appendChild(tempCanvas);
-      };
-      img.src = response.mosaic;
-    }
-  });
+  // Load cached mosaic while generating new one
+  try {
+    chrome.runtime.sendMessage({ type: 'GET_CACHED_MOSAIC' }, response => {
+      if (response && response.mosaic) {
+        const img = new Image();
+        img.onload = () => {
+          const tempCanvas = document.createElement('canvas');
+          tempCanvas.width = window.innerWidth;
+          tempCanvas.height = window.innerHeight;
+          const ctx = tempCanvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, tempCanvas.width, tempCanvas.height);
+          container.appendChild(tempCanvas);
+        };
+        img.src = response.mosaic;
+      }
+    });
+  } catch (error) {
+    console.error('Error loading cached mosaic:', error);
+  }
 });
