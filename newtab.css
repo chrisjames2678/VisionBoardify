@@ -16,19 +16,17 @@ body {
   flex-direction: column;
   gap: 8px;
   overflow: auto;
-  justify-content: flex-start;
   align-items: stretch;
 }
 
 .mosaic-row {
   display: flex;
-  gap: 8px;
   width: 100%;
   justify-content: flex-start;
-  align-items: stretch;
-  min-height: 0;
+  align-items: center;
   flex-wrap: nowrap;
-  overflow: hidden;
+  margin-bottom: 8px;
+  min-height: 0;
 }
 
 .image-tile {
@@ -38,6 +36,7 @@ body {
   overflow: hidden;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   transition: transform 0.2s ease;
+  flex: 1 1 auto;
   max-width: 40vw;
   max-height: 40vh;
 }
@@ -82,22 +81,12 @@ body {
 @media (max-width: 768px) {
   #mosaic-container {
     padding: 8px;
-    gap: 6px;
-  }
-
-  .mosaic-row {
-    gap: 6px;
   }
 }
 
 @media (max-width: 480px) {
   #mosaic-container {
     padding: 4px;
-    gap: 4px;
-  }
-
-  .mosaic-row {
-    gap: 4px;
   }
 
   .settings-button {

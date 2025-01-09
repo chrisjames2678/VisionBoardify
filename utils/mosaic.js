@@ -4,7 +4,7 @@ class MosaicGenerator {
       console.log('Processing', images.length, 'images for mosaic');
 
       // Calculate viewport constraints
-      const viewportWidth = window.innerWidth - 32;
+      const viewportWidth = window.innerWidth - 32; // Account for container padding
       const viewportHeight = window.innerHeight - 32;
       const maxImageWidth = viewportWidth * 0.4;  // 40% of viewport width
       const maxImageHeight = viewportHeight * 0.4; // 40% of viewport height
@@ -44,90 +44,96 @@ class MosaicGenerator {
       // Sort images by aspect ratio for better grouping
       validImages.sort((a, b) => b.aspectRatio - a.aspectRatio);
 
-      // Calculate optimal row distribution
-      const targetRowCount = Math.ceil(Math.sqrt(validImages.length * (viewportWidth / viewportHeight)));
-      const targetRowHeight = Math.min(
-        Math.floor(viewportHeight / targetRowCount),
-        maxImageHeight
-      );
+      // Initialize row tracking
+      const rows = [];
+      let currentRow = [];
+      let currentRowWidth = 0;
 
-      // Group images into optimal rows
-      const rows = this.calculateOptimalRows(validImages, viewportWidth, targetRowHeight, maxImageWidth);
+      // Process images
+      validImages.forEach((img) => {
+        // Calculate initial dimensions based on max constraints
+        let imgHeight = maxImageHeight;
+        let imgWidth = imgHeight * img.aspectRatio;
 
-      // Process rows to ensure they fill the viewport width
-      const processedImages = rows.flatMap((row, rowIndex) => {
-        // Calculate total width and gaps
-        const totalGapWidth = Math.min(
-          (row.length - 1) * 8, // minimum gap
-          viewportWidth * 0.2 // maximum 20% of viewport width for gaps
-        );
+        // Adjust if width exceeds max
+        if (imgWidth > maxImageWidth) {
+          imgWidth = maxImageWidth;
+          imgHeight = imgWidth / img.aspectRatio;
+        }
 
-        const rowWidth = row.reduce((sum, img) => 
-          sum + (img.aspectRatio * targetRowHeight), 0);
+        // Calculate maximum allowed gap (20% of viewport width)
+        const maxGapWidth = viewportWidth * 0.2;
 
-        // Calculate scale to fill width while respecting max size constraints
-        const scale = Math.min(
-          (viewportWidth - totalGapWidth) / rowWidth,
-          maxImageHeight / targetRowHeight
-        );
+        // Check if adding this image would exceed width or gap constraints
+        const potentialWidth = currentRowWidth + imgWidth;
+        const estimatedGap = currentRow.length * 8; // 8px minimum gap
+        const totalWidth = potentialWidth + estimatedGap;
 
-        return row.map((img, index) => {
-          const scaledHeight = targetRowHeight * scale;
-          const scaledWidth = Math.min(
-            img.aspectRatio * scaledHeight,
-            maxImageWidth
+        // Start new row if needed
+        if (currentRow.length > 0 && (totalWidth > viewportWidth || 
+            (viewportWidth - totalWidth) > maxGapWidth)) {
+
+          // Scale current row to fit width
+          const rowScale = Math.min(
+            (viewportWidth - (currentRow.length - 1) * 8) / currentRowWidth,
+            1
           );
 
-          return {
-            ...img,
-            newRow: index === 0,
+          rows.push(...currentRow.map((item, i) => ({
+            ...item,
             style: {
-              width: `${scaledWidth}px`,
-              height: `${scaledHeight}px`,
-              flex: '0 0 auto',
-              margin: '0'
-            }
-          };
+              width: `${item.width * rowScale}px`,
+              height: `${item.height * rowScale}px`,
+              flex: '1 1 auto',
+              marginRight: i < currentRow.length - 1 ? '8px' : '0'
+            },
+            newRow: true
+          })));
+
+          currentRow = [];
+          currentRowWidth = 0;
+        }
+
+        // Add image to current row
+        currentRow.push({
+          ...img,
+          width: imgWidth,
+          height: imgHeight,
+          style: {
+            width: `${imgWidth}px`,
+            height: `${imgHeight}px`,
+            flex: '1 1 auto',
+            marginRight: '8px'
+          }
         });
+
+        currentRowWidth += imgWidth;
       });
 
-      return processedImages;
+      // Handle last row
+      if (currentRow.length > 0) {
+        const rowScale = Math.min(
+          (viewportWidth - (currentRow.length - 1) * 8) / currentRowWidth,
+          1
+        );
+
+        rows.push(...currentRow.map((item, i) => ({
+          ...item,
+          style: {
+            width: `${item.width * rowScale}px`,
+            height: `${item.height * rowScale}px`,
+            flex: '1 1 auto',
+            marginRight: i < currentRow.length - 1 ? '8px' : '0'
+          },
+          newRow: true
+        })));
+      }
+
+      return rows;
     } catch (error) {
       console.error('Error in image processing:', error);
       throw error;
     }
-  }
-
-  static calculateOptimalRows(images, viewportWidth, targetHeight, maxImageWidth) {
-    const rows = [];
-    let currentRow = [];
-    let currentRowWidth = 0;
-    const maxGapPerRow = viewportWidth * 0.2; // 20% of viewport width
-
-    images.forEach(img => {
-      const scaledWidth = Math.min(
-        img.aspectRatio * targetHeight,
-        maxImageWidth
-      );
-
-      // Start new row if adding this image would exceed max gap constraint
-      const potentialGap = viewportWidth - (currentRowWidth + scaledWidth);
-      if (currentRow.length > 0 && (potentialGap > maxGapPerRow || currentRowWidth + scaledWidth > viewportWidth)) {
-        rows.push(currentRow);
-        currentRow = [];
-        currentRowWidth = 0;
-      }
-
-      currentRow.push(img);
-      currentRowWidth += scaledWidth;
-    });
-
-    // Add remaining images to the last row
-    if (currentRow.length > 0) {
-      rows.push(currentRow);
-    }
-
-    return rows;
   }
 }
 
