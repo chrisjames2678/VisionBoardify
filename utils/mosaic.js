@@ -18,8 +18,8 @@ class MosaicGenerator {
       canvas.height = window.innerHeight * pixelRatio;
       console.log('Canvas dimensions:', canvas.width, 'x', canvas.height);
 
-      // Screen border padding (7% of smallest dimension)
-      const borderPadding = Math.min(canvas.width, canvas.height) * 0.07;
+      // Screen border padding (6% of smallest dimension)
+      const borderPadding = Math.min(canvas.width, canvas.height) * 0.06;
 
       // Load and analyze images
       const loadedImages = await Promise.all(
@@ -63,56 +63,51 @@ class MosaicGenerator {
       ctx.fillStyle = '#FFFFFF';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-      // Define zones for image placement (3x3 grid)
-      const zones = [];
-      const zoneWidth = availableWidth / 3;
-      const zoneHeight = availableHeight / 3;
+      // Calculate optimal grid dimensions based on number of images
+      const numImages = validImages.length;
+      const aspectRatio = availableWidth / availableHeight;
+      const gridRows = Math.ceil(Math.sqrt(numImages / aspectRatio));
+      const gridCols = Math.ceil(numImages / gridRows);
 
-      // Create 9 zones with their centers
-      for (let row = 0; row < 3; row++) {
-        for (let col = 0; col < 3; col++) {
-          zones.push({
-            x: borderPadding + (col * zoneWidth) + (zoneWidth / 2),
-            y: borderPadding + (row * zoneHeight) + (zoneHeight / 2)
-          });
-        }
-      }
+      // Calculate cell size with significant overlap
+      const cellWidth = (availableWidth / (gridCols - 0.7)); // Increased overlap between columns
+      const cellHeight = (availableHeight / (gridRows - 0.7)); // Increased overlap between rows
 
-      // Shuffle zones for random distribution
-      zones.sort(() => Math.random() - 0.5);
-
-      // Calculate positions for each image
+      // Generate positions with enhanced clustering
       const positions = [];
       validImages.forEach((img, index) => {
-        const zone = zones[index % zones.length];
+        // Determine grid position
+        const row = Math.floor(index / gridCols);
+        const col = index % gridCols;
 
-        // Calculate base scale (larger for featured images)
-        const baseScale = index < 3 ? 0.8 : 0.6;
+        // Calculate base position with reduced spacing
+        const baseX = borderPadding + (col * cellWidth * 0.65) + (cellWidth / 2);
+        const baseY = borderPadding + (row * cellHeight * 0.65) + (cellHeight / 2);
 
-        // Add random variation to scale (±15%)
-        const randomScale = baseScale * (1 + (Math.random() * 0.3 - 0.15));
+        // Add random offset (±50% of cell size)
+        const offsetX = (Math.random() * 1.0 - 0.5) * cellWidth;
+        const offsetY = (Math.random() * 1.0 - 0.5) * cellHeight;
 
-        // Calculate max scale to fit in zone
+        // Calculate base scale to fit in cell with larger sizes
         const maxScale = Math.min(
-          (zoneWidth * 1.2) / img.width,
-          (zoneHeight * 1.2) / img.height
+          (cellWidth * 1.5) / img.width,  // Allow 50% overflow
+          (cellHeight * 1.5) / img.height
         );
 
-        const finalScale = maxScale * randomScale;
+        // Vary scale based on position and index
+        const isFeature = index < 3;
+        const baseScale = maxScale * (isFeature ? 1.2 : 1.0);
 
-        // Calculate dimensions
-        const width = img.width * finalScale;
-        const height = img.height * finalScale;
+        // Add random variation to scale (±20%)
+        const finalScale = baseScale * (0.8 + Math.random() * 0.4);
 
-        // Add random offset within zone (±20% of zone size)
-        const offsetX = (Math.random() * 0.4 - 0.2) * zoneWidth;
-        const offsetY = (Math.random() * 0.4 - 0.2) * zoneHeight;
-
-        // Calculate final position
-        let x = zone.x + offsetX;
-        let y = zone.y + offsetY;
+        // Calculate final position with offset
+        let x = baseX + offsetX;
+        let y = baseY + offsetY;
 
         // Ensure image stays within borders
+        const width = img.width * finalScale;
+        const height = img.height * finalScale;
         x = Math.min(Math.max(x, borderPadding + width/2), canvas.width - width/2 - borderPadding);
         y = Math.min(Math.max(y, borderPadding + height/2), canvas.height - height/2 - borderPadding);
 
@@ -120,28 +115,31 @@ class MosaicGenerator {
         console.log(`Position calculated for image ${index + 1}: (${x.toFixed(0)}, ${y.toFixed(0)}), scale: ${finalScale.toFixed(2)}`);
       });
 
-      // Draw images in reverse order (so first images appear on top)
-      for (let i = validImages.length - 1; i >= 0; i--) {
-        const img = validImages[i];
-        const pos = positions[i];
+      // Draw images with optimized order (outer to inner)
+      const drawOrder = positions.map((pos, index) => ({ index, pos }))
+        .sort((a, b) => {
+          const aDist = Math.abs(a.pos.x - canvas.width/2) + Math.abs(a.pos.y - canvas.height/2);
+          const bDist = Math.abs(b.pos.x - canvas.width/2) + Math.abs(b.pos.y - canvas.height/2);
+          return bDist - aDist; // Draw outer images first
+        });
+
+      drawOrder.forEach(({ index, pos }) => {
+        const img = validImages[index];
         const width = img.width * pos.scale;
         const height = img.height * pos.scale;
 
-        console.log(`Drawing image ${i + 1} at (${pos.x.toFixed(0)}, ${pos.y.toFixed(0)}), size: ${width.toFixed(0)}x${height.toFixed(0)}`);
+        console.log(`Drawing image ${index + 1} at (${pos.x.toFixed(0)}, ${pos.y.toFixed(0)}), size: ${width.toFixed(0)}x${height.toFixed(0)}`);
 
         try {
           ctx.save();
-          // Enable high-quality image rendering
           ctx.imageSmoothingEnabled = true;
           ctx.imageSmoothingQuality = 'high';
-
-          // Draw image with correct centering
           ctx.drawImage(img.element, pos.x - width/2, pos.y - height/2, width, height);
           ctx.restore();
         } catch (error) {
-          console.error(`Error drawing image ${i + 1}:`, error);
+          console.error(`Error drawing image ${index + 1}:`, error);
         }
-      }
+      });
 
       console.log('Mosaic generation completed');
       return ctx.getImageData(0, 0, canvas.width, canvas.height);
@@ -160,7 +158,7 @@ class MosaicGenerator {
       'https://picsum.photos/768/1024',
     ];
 
-    const testImages = Array(numImages).fill(null).map((_, i) => 
+    const testImages = Array(numImages).fill(null).map((_, i) =>
       testUrls[i % testUrls.length]
     );
 
