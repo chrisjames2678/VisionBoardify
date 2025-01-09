@@ -3,29 +3,19 @@ class MosaicGenerator {
     try {
       console.log('Generating mosaic with', images.length, 'images');
       const canvas = document.createElement('canvas');
-      const ctx = canvas.getContext('2d', { 
+      const ctx = canvas.getContext('2d', {
         alpha: true,
-        willReadFrequently: true 
+        willReadFrequently: true
       });
 
       if (!ctx) {
         throw new Error('Failed to get canvas context');
       }
 
-      // Set canvas size with device pixel ratio for better quality
-      const maxDimension = 16384;
+      // Set canvas size with device pixel ratio
       const pixelRatio = window.devicePixelRatio || 1;
-      const screenWidth = window.innerWidth * pixelRatio;
-      const screenHeight = window.innerHeight * pixelRatio;
-
-      const scale = Math.min(
-        maxDimension / screenWidth,
-        maxDimension / screenHeight,
-        2
-      );
-
-      canvas.width = screenWidth * scale;
-      canvas.height = screenHeight * scale;
+      canvas.width = window.innerWidth * pixelRatio;
+      canvas.height = window.innerHeight * pixelRatio;
       console.log('Canvas dimensions:', canvas.width, 'x', canvas.height);
 
       // Load and analyze images
@@ -35,23 +25,16 @@ class MosaicGenerator {
             const img = await new Promise((resolve, reject) => {
               const img = new Image();
               img.crossOrigin = 'anonymous';
-
               img.onload = () => {
                 console.log(`Image ${index + 1}/${images.length} loaded successfully`);
                 resolve({
                   element: img,
                   width: img.width,
                   height: img.height,
-                  aspectRatio: img.width / img.height,
-                  area: img.width * img.height
+                  aspectRatio: img.width / img.height
                 });
               };
-
-              img.onerror = () => {
-                console.error(`Failed to load image ${index + 1}:`, src);
-                reject(new Error(`Image ${index + 1} load failed`));
-              };
-
+              img.onerror = () => reject(new Error(`Image ${index + 1} load failed`));
               img.src = src;
             });
             return img;
@@ -68,140 +51,80 @@ class MosaicGenerator {
         throw new Error('No valid images to display');
       }
 
-      // Calculate optimal grid dimensions
-      const totalImages = validImages.length;
-      const canvasAspectRatio = canvas.width / canvas.height;
+      // Simple grid calculation
+      const imageCount = validImages.length;
+      console.log('Total valid images:', imageCount);
 
-      // Enhanced gap calculation with generous spacing
-      const getGapSize = (row, col, maxRow, maxCol) => {
-        const edgeFactor = (row === 0 || row === maxRow - 1 || col === 0 || col === maxCol - 1) ? 0.7 : 1;
-        const cornerFactor = ((row === 0 || row === maxRow - 1) && (col === 0 || col === maxCol - 1)) ? 0.6 : 1;
-        const basePadding = 0.15; // Increased to 15% base padding
-        return basePadding * edgeFactor * cornerFactor;
-      };
+      // Start with minimum 3 columns for better distribution
+      let cols = Math.max(3, Math.floor(Math.sqrt(imageCount)));
+      let rows = Math.ceil(imageCount / cols);
 
-      // Group images by similar aspect ratios (with larger increments)
-      const aspectGroups = {};
-      validImages.forEach(img => {
-        const roundedAspect = Math.round(img.aspectRatio); // Rounded to whole numbers for looser grouping
-        if (!aspectGroups[roundedAspect]) {
-          aspectGroups[roundedAspect] = [];
-        }
-        aspectGroups[roundedAspect].push(img);
-      });
-
-      // Sort images within groups by area
-      Object.values(aspectGroups).forEach(group => {
-        group.sort((a, b) => b.area - a.area);
-      });
-
-      // Flatten groups back to array, keeping similar aspects together
-      const sortedImages = Object.values(aspectGroups)
-        .sort((a, b) => b[0].area - a[0].area)
-        .flat();
-
-      // Calculate weighted aspect ratio for optimal grid
-      const totalArea = validImages.reduce((sum, img) => sum + img.area, 0);
-      const weightedAspectRatio = validImages.reduce(
-        (sum, img) => sum + (img.aspectRatio * img.area / totalArea),
-        0
-      );
-
-      // Significantly reduce number of columns for more spacing
-      let cols = Math.round(Math.sqrt(totalImages * weightedAspectRatio * canvasAspectRatio * 0.6));
-      let rows = Math.ceil(totalImages / cols);
-
-      // Adjust grid for optimal aspect ratio match
-      while ((cols / rows < canvasAspectRatio * 0.95 && cols < totalImages) || 
-             (cols * rows < totalImages)) {
-        cols++;
-        rows = Math.ceil(totalImages / cols);
+      // Adjust grid based on screen aspect ratio
+      const screenAspect = canvas.width / canvas.height;
+      if (screenAspect > 1.5) {
+        // Wide screen - prefer more columns
+        cols = Math.min(imageCount, cols + 1);
+      } else if (screenAspect < 0.67) {
+        // Tall screen - prefer more rows
+        rows = Math.min(imageCount, rows + 1);
       }
 
-      console.log('Grid layout:', cols, 'x', rows, 'for', totalImages, 'images');
+      // Ensure we have enough cells
+      while (cols * rows < imageCount) {
+        if ((cols + 1) * rows <= imageCount * 1.2) {
+          cols++;
+        } else {
+          rows++;
+        }
+      }
+
+      console.log('Grid dimensions:', cols, 'x', rows);
 
       // Calculate cell dimensions
       const cellWidth = canvas.width / cols;
       const cellHeight = canvas.height / rows;
 
-      // Initialize tracking arrays for dynamic spacing
-      const rowHeights = new Array(rows).fill(0);
-      const colWidths = new Array(cols).fill(0);
+      // Fixed spacing (3% of cell size)
+      const spacing = Math.min(cellWidth, cellHeight) * 0.03;
 
       // Clear canvas
       ctx.fillStyle = '#FFFFFF';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
+      // Draw images
       let currentRow = 0;
       let currentCol = 0;
 
-      // Layout images with significantly reduced scaling
-      for (let i = 0; i < sortedImages.length; i++) {
-        const img = sortedImages[i];
-        const nextImg = sortedImages[i + 1];
-        const prevImg = sortedImages[i - 1];
+      for (let i = 0; i < validImages.length; i++) {
+        const img = validImages[i];
 
-        // Greatly reduced scale factors
-        const scaleBase = 0.85; // Significantly reduced from 1.15
-        const neighborBonus = 0.05; // Reduced from 0.1
-        const edgeBonus = 0.03; // Reduced from 0.05
-        const cornerBonus = 0.05; // Reduced from 0.1
-        const aspectMatchBonus = 0.03; // Reduced from 0.05
+        // Calculate available space in cell
+        const availWidth = cellWidth - (spacing * 2);
+        const availHeight = cellHeight - (spacing * 2);
 
-        let scaleMultiplier = scaleBase;
-
-        // Add minimal bonus scale for similar aspect ratios
-        if (nextImg && Math.abs(img.aspectRatio - nextImg.aspectRatio) < 0.3) {
-          scaleMultiplier += neighborBonus + aspectMatchBonus;
-        }
-        if (prevImg && Math.abs(img.aspectRatio - prevImg.aspectRatio) < 0.3) {
-          scaleMultiplier += neighborBonus + aspectMatchBonus;
-        }
-
-        // Enhanced position-based scaling with minimal factors
-        const isEdge = currentRow === 0 || currentRow === rows - 1 || 
-                      currentCol === 0 || currentCol === cols - 1;
-        const isCorner = (currentRow === 0 || currentRow === rows - 1) && 
-                        (currentCol === 0 || currentCol === cols - 1);
-
-        if (isEdge) scaleMultiplier += edgeBonus;
-        if (isCorner) scaleMultiplier += cornerBonus;
-
-        // Get dynamic padding based on position
-        const padding = getGapSize(currentRow, currentCol, rows, cols);
-
-        // Calculate dimensions with enhanced gap minimization
-        const paddedWidth = cellWidth * (1 - padding) * scaleMultiplier;
-        const paddedHeight = cellHeight * (1 - padding) * scaleMultiplier;
-
-        // Scale image while maintaining aspect ratio
+        // Scale image to fit cell while maintaining aspect ratio
         const scale = Math.min(
-          paddedWidth / img.width,
-          paddedHeight / img.height
+          availWidth / img.width,
+          availHeight / img.height
         );
 
         const width = img.width * scale;
         const height = img.height * scale;
 
-        // Update row and column tracking
-        rowHeights[currentRow] = Math.max(rowHeights[currentRow], height);
-        colWidths[currentCol] = Math.max(colWidths[currentCol], width);
+        // Center image in cell
+        const x = (currentCol * cellWidth) + ((cellWidth - width) / 2);
+        const y = (currentRow * cellHeight) + ((cellHeight - height) / 2);
 
-        // Calculate optimal position with enhanced spacing
-        const xOffset = (cellWidth - width) / 2;
-        const yOffset = (cellHeight - height) / 2;
-        const x = currentCol * cellWidth + xOffset;
-        const y = currentRow * cellHeight + yOffset;
+        console.log(`Drawing image ${i + 1} at position (${currentCol}, ${currentRow}), size: ${width.toFixed(0)}x${height.toFixed(0)}`);
 
         try {
-          // Draw image with high quality
           ctx.save();
           ctx.imageSmoothingEnabled = true;
           ctx.imageSmoothingQuality = 'high';
           ctx.drawImage(img.element, x, y, width, height);
           ctx.restore();
-        } catch (drawError) {
-          console.error('Error drawing image:', drawError);
+        } catch (error) {
+          console.error(`Error drawing image ${i + 1}:`, error);
           continue;
         }
 
@@ -213,7 +136,7 @@ class MosaicGenerator {
         }
       }
 
-      console.log('Mosaic generation completed successfully');
+      console.log('Mosaic generation completed');
       return ctx.getImageData(0, 0, canvas.width, canvas.height);
     } catch (error) {
       console.error('Error in mosaic generation:', error);
@@ -222,7 +145,7 @@ class MosaicGenerator {
   }
 }
 
-// Add test function for local development
+// Test function for local development
 if (typeof chrome === 'undefined') {
   console.log('Running in development mode');
   window.testMosaic = async function(numImages = 10) {
