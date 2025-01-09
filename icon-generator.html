@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Icon Generator</title>
+</head>
+<body>
+  <h1>Icon Generator</h1>
+  <p>Right-click each icon below and select "Save image as" to save as PNG:</p>
+  
+  <h2>48x48 Icon:</h2>
+  <canvas id="icon48" width="48" height="48"></canvas>
+  
+  <h2>128x128 Icon:</h2>
+  <canvas id="icon128" width="128" height="128"></canvas>
+
+  <script>
+    function drawIcon(canvas) {
+      const ctx = canvas.getContext('2d');
+      const size = canvas.width;
+      
+      // Background
+      ctx.fillStyle = '#4285f4';
+      ctx.fillRect(0, 0, size, size);
+      
+      // Grid squares
+      ctx.fillStyle = '#ffffff';
+      const padding = size * 0.15;
+      const squareSize = (size - (padding * 3)) / 2;
+      
+      // Draw 4 squares
+      for(let i = 0; i < 2; i++) {
+        for(let j = 0; j < 2; j++) {
+          const x = padding + (j * (squareSize + padding));
+          const y = padding + (i * (squareSize + padding));
+          ctx.beginPath();
+          ctx.roundRect(x, y, squareSize, squareSize, size * 0.04);
+          ctx.fill();
+        }
+      }
+    }
+
+    // Generate both icons
+    drawIcon(document.getElementById('icon48'));
+    drawIcon(document.getElementById('icon128'));
+  </script>
+</body>
+</html>

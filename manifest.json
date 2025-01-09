@@ -5,7 +5,8 @@
   "description": "Generate vision board mosaics as new tab backgrounds",
   "permissions": [
     "storage",
-    "unlimitedStorage"
+    "unlimitedStorage",
+    "tabs"
   ],
   "chrome_url_overrides": {
     "newtab": "newtab.html"
@@ -16,11 +17,11 @@
   },
   "options_page": "options.html",
   "web_accessible_resources": [{
-    "resources": ["*.js", "*.css", "images/*"],
+    "resources": ["*.js", "*.css", "*.html"],
     "matches": ["<all_urls>"]
   }],
   "icons": {
-    "48": "icons/icon48.png",
-    "128": "icons/icon128.png"
+    "48": "icons/icon48.svg",
+    "128": "icons/icon128.svg"
   }
 }
