@@ -46,11 +46,21 @@ document.addEventListener('DOMContentLoaded', async () => {
       // Process images through MosaicGenerator
       const processedImages = await MosaicGenerator.generate(images);
 
-      // Clear container and create image grid
+      // Clear container and create image rows
       container.innerHTML = '';
+
+      let currentRow;
       processedImages.forEach((img, index) => {
+        // Create new row if needed
+        if (!currentRow || img.newRow) {
+          currentRow = document.createElement('div');
+          currentRow.className = 'mosaic-row';
+          container.appendChild(currentRow);
+        }
+
         const tile = document.createElement('div');
         tile.className = 'image-tile';
+        Object.assign(tile.style, img.style);
 
         const imgElement = document.createElement('img');
         imgElement.src = img.src;
@@ -58,7 +68,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         imgElement.loading = 'lazy';
 
         tile.appendChild(imgElement);
-        container.appendChild(tile);
+        currentRow.appendChild(tile);
       });
 
     } catch (error) {

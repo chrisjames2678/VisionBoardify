@@ -9,25 +9,37 @@ body {
 
 #mosaic-container {
   width: 100%;
-  height: calc(100vh - 16px);
-  padding: 8px;
+  height: 100vh;
+  padding: 16px;
   box-sizing: border-box;
   display: flex;
-  flex-wrap: wrap;
+  flex-direction: column;
   gap: 8px;
-  align-content: flex-start;
+  overflow: auto;
+  justify-content: flex-start;
+  align-items: stretch;
+}
+
+.mosaic-row {
+  display: flex;
+  gap: 8px;
+  width: 100%;
+  justify-content: flex-start;
+  align-items: stretch;
+  min-height: 0;
+  flex-wrap: nowrap;
+  overflow: hidden;
 }
 
 .image-tile {
-  flex: 1 1 calc(33.333% - 8px);
-  min-width: 250px;
-  aspect-ratio: 16/9;
   position: relative;
   background: white;
   border-radius: 8px;
   overflow: hidden;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   transition: transform 0.2s ease;
+  max-width: 40vw;
+  max-height: 40vh;
 }
 
 .image-tile:hover {
@@ -67,22 +79,14 @@ body {
 }
 
 /* Responsive adjustments */
-@media (max-width: 1024px) {
-  .image-tile {
-    flex: 1 1 calc(50% - 8px);
-    min-width: 200px;
-  }
-}
-
 @media (max-width: 768px) {
   #mosaic-container {
-    padding: 6px;
+    padding: 8px;
     gap: 6px;
   }
 
-  .image-tile {
-    flex: 1 1 calc(50% - 6px);
-    min-width: 180px;
+  .mosaic-row {
+    gap: 6px;
   }
 }
 
@@ -92,9 +96,8 @@ body {
     gap: 4px;
   }
 
-  .image-tile {
-    flex: 1 1 calc(100% - 4px);
-    min-width: 140px;
+  .mosaic-row {
+    gap: 4px;
   }
 
   .settings-button {
