@@ -13,7 +13,9 @@ document.addEventListener('DOMContentLoaded', async () => {
   });
 
   async function generateAndDisplayMosaic() {
+    console.log('Starting mosaic generation...');
     const images = await StorageManager.getImages();
+    console.log('Retrieved', images.length, 'images from storage');
 
     if (images.length === 0) {
       container.innerHTML = `
@@ -33,6 +35,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       canvas.style.height = '100%';
 
       // Generate new mosaic
+      console.log('Starting mosaic generation with canvas size:', canvas.width, 'x', canvas.height);
       const mosaic = await MosaicGenerator.generate(images);
 
       // Fade out current content
@@ -48,6 +51,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       // Draw mosaic and fade in
       const ctx = canvas.getContext('2d');
       ctx.putImageData(mosaic, 0, 0);
+      console.log('Mosaic rendered successfully');
 
       // Cache the mosaic in background
       chrome.runtime.sendMessage({
@@ -74,7 +78,10 @@ document.addEventListener('DOMContentLoaded', async () => {
   let resizeTimeout;
   window.addEventListener('resize', () => {
     clearTimeout(resizeTimeout);
-    resizeTimeout = setTimeout(generateAndDisplayMosaic, 250);
+    resizeTimeout = setTimeout(() => {
+      console.log('Window resized, regenerating mosaic...');
+      generateAndDisplayMosaic();
+    }, 250);
   });
 
   // Load cached mosaic while generating new one

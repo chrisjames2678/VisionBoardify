@@ -1,5 +1,6 @@
 class MosaicGenerator {
   static async generate(images) {
+    console.log('Generating mosaic with', images.length, 'images');
     const canvas = document.createElement('canvas');
     const ctx = canvas.getContext('2d', { 
       alpha: true,
@@ -20,6 +21,7 @@ class MosaicGenerator {
 
     canvas.width = screenWidth * scale;
     canvas.height = screenHeight * scale;
+    console.log('Canvas dimensions:', canvas.width, 'x', canvas.height);
 
     ctx.imageSmoothingEnabled = true;
     ctx.imageSmoothingQuality = 'high';
@@ -51,6 +53,7 @@ class MosaicGenerator {
 
     // Sort images by area to optimize layout (larger images first)
     loadedImages.sort((a, b) => b.area - a.area);
+    console.log('Sorted images by area:', loadedImages.map(img => img.area));
 
     // Calculate optimal grid layout based on screen proportions
     const totalImages = loadedImages.length;
@@ -63,18 +66,21 @@ class MosaicGenerator {
       0
     );
 
-    // Determine optimal grid dimensions using weighted aspect ratio
-    let cols = Math.round(Math.sqrt(totalImages * weightedAspectRatio / canvasAspectRatio));
+    // Determine initial grid dimensions
+    let cols = Math.round(Math.sqrt(totalImages * weightedAspectRatio));
     let rows = Math.ceil(totalImages / cols);
 
-    // Adjust grid to minimize empty space
-    while (cols * rows < totalImages) {
-      if ((cols + 1) / rows < weightedAspectRatio) {
+    // Adjust grid to better fill space
+    const padding = 0.03; // 3% padding between images
+    while (cols * rows < totalImages || (cols / rows) < canvasAspectRatio * 0.8) {
+      if ((cols + 1) / rows < weightedAspectRatio * 1.2) {
         cols++;
       } else {
         rows++;
       }
     }
+
+    console.log('Grid layout:', cols, 'x', rows, 'for', totalImages, 'images');
 
     // Calculate base cell dimensions
     const cellWidth = canvas.width / cols;
@@ -84,53 +90,47 @@ class MosaicGenerator {
     ctx.fillStyle = '#FFFFFF';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    // Layout images with dynamic cell sizing and overlap
+    // Layout images with dynamic cell sizing
     let currentRow = 0;
     let currentCol = 0;
 
     for (let i = 0; i < loadedImages.length; i++) {
       const img = loadedImages[i];
-
-      // Calculate cell size adjustments based on neighboring images
       const nextImg = loadedImages[i + 1];
       const prevImg = loadedImages[i - 1];
 
-      // Adjust cell dimensions based on image aspect ratio and position
-      let adjustedCellWidth = cellWidth;
-      let adjustedCellHeight = cellHeight;
+      // Calculate dynamic cell size based on neighboring images
+      let cellWidthAdjust = 1.0;
+      let cellHeightAdjust = 1.0;
 
-      // Expand width for similar aspect ratios
+      // Adjust cell size based on image relationships
       if (nextImg && Math.abs(img.aspectRatio - nextImg.aspectRatio) < 0.2) {
-        adjustedCellWidth *= 1.2; // More aggressive expansion
+        cellWidthAdjust = 1.1; // Slightly expand for similar aspect ratios
+      }
+      if (prevImg && Math.abs(img.aspectRatio - prevImg.aspectRatio) < 0.2) {
+        cellHeightAdjust = 1.1; // Expand for vertical alignment
       }
 
-      // Expand height for vertical alignment
-      if (prevImg && currentCol > 0 && Math.abs(img.aspectRatio - prevImg.aspectRatio) < 0.2) {
-        adjustedCellHeight *= 1.2;
-      }
+      // Calculate padded cell dimensions
+      const paddedWidth = cellWidth * (1 - padding) * cellWidthAdjust;
+      const paddedHeight = cellHeight * (1 - padding) * cellHeightAdjust;
 
-      // Add extra expansion for edge cells to ensure full coverage
-      if (currentCol === 0 || currentCol === cols - 1) {
-        adjustedCellWidth *= 1.1;
-      }
-      if (currentRow === 0 || currentRow === rows - 1) {
-        adjustedCellHeight *= 1.1;
-      }
-
-      // Calculate dimensions to completely fill adjusted cell with overlap
-      const scale = Math.max(
-        adjustedCellWidth / img.width,
-        adjustedCellHeight / img.height
-      ) * 1.2; // Increased overlap for better coverage
+      // Calculate scale to fit image within padded cell while maintaining aspect ratio
+      const scale = Math.min(
+        paddedWidth / img.width,
+        paddedHeight / img.height
+      ) * 1.03; // Slight overlap to reduce visible gaps
 
       const width = img.width * scale;
       const height = img.height * scale;
 
-      // Position image with overlap
-      const x = currentCol * cellWidth - (width - cellWidth) * 0.1; // Add negative margin
-      const y = currentRow * cellHeight - (height - cellHeight) * 0.1;
+      // Center image in cell
+      const x = currentCol * cellWidth + (cellWidth - width) / 2;
+      const y = currentRow * cellHeight + (cellHeight - height) / 2;
 
-      // Draw image with high quality and centered positioning
+      console.log('Placing image', i, 'at', x, y, 'with dimensions', width, height);
+
+      // Draw image with high quality
       const tempCanvas = document.createElement('canvas');
       const tempCtx = tempCanvas.getContext('2d', { alpha: true });
       tempCanvas.width = width;
@@ -140,10 +140,8 @@ class MosaicGenerator {
       tempCtx.imageSmoothingQuality = 'high';
       tempCtx.drawImage(img.element, 0, 0, width, height);
 
-      // Center image in cell with negative margins to create overlap
-      const drawX = x + (cellWidth - width) / 2;
-      const drawY = y + (cellHeight - height) / 2;
-      ctx.drawImage(tempCanvas, drawX, drawY);
+      // Draw final image
+      ctx.drawImage(tempCanvas, x, y, width, height);
 
       // Move to next cell
       currentCol++;
