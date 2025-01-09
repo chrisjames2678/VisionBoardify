@@ -8,14 +8,27 @@ document.addEventListener('DOMContentLoaded', async () => {
       <p>Loading vision board...</p>
     </div>`;
 
+  // Handle options button click
   openOptionsButton.addEventListener('click', () => {
-    chrome.runtime.openOptionsPage();
+    if (typeof chrome !== 'undefined' && chrome.runtime) {
+      chrome.runtime.openOptionsPage();
+    } else {
+      console.log('Running in development mode - options page not available');
+    }
   });
 
   async function generateAndDisplayMosaic() {
     console.log('Starting mosaic generation...');
-    const images = await StorageManager.getImages();
-    console.log('Retrieved', images.length, 'images from storage');
+
+    let images;
+    if (typeof chrome !== 'undefined' && chrome.runtime) {
+      images = await StorageManager.getImages();
+    } else {
+      // Development mode: use test images
+      images = Array(10).fill('https://picsum.photos/800/600');
+    }
+
+    console.log('Retrieved', images.length, 'images');
 
     if (images.length === 0) {
       container.innerHTML = `
@@ -53,11 +66,13 @@ document.addEventListener('DOMContentLoaded', async () => {
       ctx.putImageData(mosaic, 0, 0);
       console.log('Mosaic rendered successfully');
 
-      // Cache the mosaic in background
-      chrome.runtime.sendMessage({
-        type: 'SET_CACHED_MOSAIC',
-        mosaic: canvas.toDataURL()
-      });
+      // Cache the mosaic if in extension mode
+      if (typeof chrome !== 'undefined' && chrome.runtime) {
+        chrome.runtime.sendMessage({
+          type: 'SET_CACHED_MOSAIC',
+          mosaic: canvas.toDataURL()
+        });
+      }
 
       // Fade in new mosaic
       container.style.opacity = '1';
@@ -84,23 +99,25 @@ document.addEventListener('DOMContentLoaded', async () => {
     }, 250);
   });
 
-  // Load cached mosaic while generating new one
-  try {
-    chrome.runtime.sendMessage({ type: 'GET_CACHED_MOSAIC' }, response => {
-      if (response && response.mosaic) {
-        const img = new Image();
-        img.onload = () => {
-          const tempCanvas = document.createElement('canvas');
-          tempCanvas.width = window.innerWidth;
-          tempCanvas.height = window.innerHeight;
-          const ctx = tempCanvas.getContext('2d');
-          ctx.drawImage(img, 0, 0, tempCanvas.width, tempCanvas.height);
-          container.appendChild(tempCanvas);
-        };
-        img.src = response.mosaic;
-      }
-    });
-  } catch (error) {
-    console.error('Error loading cached mosaic:', error);
+  // Load cached mosaic while generating new one (if in extension mode)
+  if (typeof chrome !== 'undefined' && chrome.runtime) {
+    try {
+      chrome.runtime.sendMessage({ type: 'GET_CACHED_MOSAIC' }, response => {
+        if (response && response.mosaic) {
+          const img = new Image();
+          img.onload = () => {
+            const tempCanvas = document.createElement('canvas');
+            tempCanvas.width = window.innerWidth;
+            tempCanvas.height = window.innerHeight;
+            const ctx = tempCanvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, tempCanvas.width, tempCanvas.height);
+            container.appendChild(tempCanvas);
+          };
+          img.src = response.mosaic;
+        }
+      });
+    } catch (error) {
+      console.error('Error loading cached mosaic:', error);
+    }
   }
 });
