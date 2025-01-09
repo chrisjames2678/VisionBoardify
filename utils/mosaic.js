@@ -23,9 +23,6 @@ class MosaicGenerator {
     canvas.height = screenHeight * scale;
     console.log('Canvas dimensions:', canvas.width, 'x', canvas.height);
 
-    ctx.imageSmoothingEnabled = true;
-    ctx.imageSmoothingQuality = 'high';
-
     // Load and analyze images
     const loadedImages = await Promise.all(
       images.map(src => {
@@ -51,29 +48,39 @@ class MosaicGenerator {
       })
     );
 
-    // Sort images by area to optimize layout (larger images first)
-    loadedImages.sort((a, b) => b.area - a.area);
-    console.log('Sorted images by area:', loadedImages.map(img => img.area));
+    // Enhanced sorting with multi-factor weighting
+    loadedImages.sort((a, b) => {
+      const areaWeight = 0.85;       // Increased weight for area
+      const aspectWeight = 0.15;     // Reduced weight for aspect ratio
+      const areaDiff = b.area - a.area;
+      const aspectDiff = Math.abs(1 - a.aspectRatio) - Math.abs(1 - b.aspectRatio);
+      return areaWeight * areaDiff + aspectWeight * aspectDiff;
+    });
 
-    // Calculate optimal grid layout based on screen proportions
+    // Calculate optimal grid layout
     const totalImages = loadedImages.length;
     const canvasAspectRatio = canvas.width / canvas.height;
 
-    // Calculate weighted aspect ratio based on image areas
+    // Dynamic padding calculation with aggressive reduction
+    const basePadding = 0.012;  // Reduced to 1.2% base padding
+    const padding = Math.max(0.004, basePadding * Math.pow(0.8, Math.floor(totalImages / 3)));
+
+    // Calculate weighted aspect ratio for optimal grid
     const totalArea = loadedImages.reduce((sum, img) => sum + img.area, 0);
     const weightedAspectRatio = loadedImages.reduce(
       (sum, img) => sum + (img.aspectRatio * img.area / totalArea), 
       0
     );
 
-    // Determine initial grid dimensions
-    let cols = Math.round(Math.sqrt(totalImages * weightedAspectRatio));
+    // Dynamic grid calculation with improved aspect ratio handling
+    let cols = Math.round(Math.sqrt(totalImages * weightedAspectRatio * canvasAspectRatio));
     let rows = Math.ceil(totalImages / cols);
 
-    // Adjust grid to better fill space
-    const padding = 0.03; // 3% padding between images
-    while (cols * rows < totalImages || (cols / rows) < canvasAspectRatio * 0.8) {
-      if ((cols + 1) / rows < weightedAspectRatio * 1.2) {
+    // Optimize grid dimensions for minimal waste
+    const targetRatio = canvasAspectRatio * 0.99; // Increased from 0.98 for even better coverage
+    while ((cols / rows < targetRatio && cols < totalImages) || 
+           (cols * rows < totalImages)) {
+      if (cols / rows < targetRatio) {
         cols++;
       } else {
         rows++;
@@ -90,47 +97,62 @@ class MosaicGenerator {
     ctx.fillStyle = '#FFFFFF';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    // Layout images with dynamic cell sizing
+    // Layout images with enhanced gap filling
     let currentRow = 0;
     let currentCol = 0;
+    let rowHeights = new Array(rows).fill(0);
+    let colWidths = new Array(cols).fill(0);
 
     for (let i = 0; i < loadedImages.length; i++) {
       const img = loadedImages[i];
       const nextImg = loadedImages[i + 1];
       const prevImg = loadedImages[i - 1];
 
-      // Calculate dynamic cell size based on neighboring images
-      let cellWidthAdjust = 1.0;
-      let cellHeightAdjust = 1.0;
+      // Enhanced cell size adjustments with progressive scaling
+      const emptyColFactor = colWidths[currentCol] === 0 ? 0.25 : 0.15;
+      const emptyRowFactor = rowHeights[currentRow] === 0 ? 0.25 : 0.15;
 
-      // Adjust cell size based on image relationships
+      const cellWidthAdjust = Math.min(1.3, 1 + emptyColFactor);
+      const cellHeightAdjust = Math.min(1.3, 1 + emptyRowFactor);
+
+      // Adjust for similar aspect ratios with increased effect
       if (nextImg && Math.abs(img.aspectRatio - nextImg.aspectRatio) < 0.2) {
-        cellWidthAdjust = 1.1; // Slightly expand for similar aspect ratios
+        const similarityFactor = 1.2;
+        cellWidthAdjust *= similarityFactor;
       }
       if (prevImg && Math.abs(img.aspectRatio - prevImg.aspectRatio) < 0.2) {
-        cellHeightAdjust = 1.1; // Expand for vertical alignment
+        const similarityFactor = 1.2;
+        cellHeightAdjust *= similarityFactor;
       }
 
-      // Calculate padded cell dimensions
+      // Calculate optimal dimensions with minimal padding
       const paddedWidth = cellWidth * (1 - padding) * cellWidthAdjust;
       const paddedHeight = cellHeight * (1 - padding) * cellHeightAdjust;
 
-      // Calculate scale to fit image within padded cell while maintaining aspect ratio
-      const scale = Math.min(
+      // Scale image with adaptive overlap
+      const baseScale = Math.min(
         paddedWidth / img.width,
         paddedHeight / img.height
-      ) * 1.03; // Slight overlap to reduce visible gaps
+      );
+
+      // Apply progressive overlap based on position
+      const overlapFactor = 1.12 - (currentRow + currentCol) / (rows + cols) * 0.04;
+      const scale = baseScale * overlapFactor;
 
       const width = img.width * scale;
       const height = img.height * scale;
 
-      // Center image in cell
-      const x = currentCol * cellWidth + (cellWidth - width) / 2;
-      const y = currentRow * cellHeight + (cellHeight - height) / 2;
+      // Update row and column tracking
+      rowHeights[currentRow] = Math.max(rowHeights[currentRow], height);
+      colWidths[currentCol] = Math.max(colWidths[currentCol], width);
 
-      console.log('Placing image', i, 'at', x, y, 'with dimensions', width, height);
+      // Position image with optimal offset
+      const xOffset = (cellWidth - width) / 2 * (1 - padding);
+      const yOffset = (cellHeight - height) / 2 * (1 - padding);
+      const x = currentCol * cellWidth + xOffset;
+      const y = currentRow * cellHeight + yOffset;
 
-      // Draw image with high quality
+      // Draw with high quality
       const tempCanvas = document.createElement('canvas');
       const tempCtx = tempCanvas.getContext('2d', { alpha: true });
       tempCanvas.width = width;
@@ -143,7 +165,7 @@ class MosaicGenerator {
       // Draw final image
       ctx.drawImage(tempCanvas, x, y, width, height);
 
-      // Move to next cell
+      // Move to next position
       currentCol++;
       if (currentCol >= cols) {
         currentCol = 0;
