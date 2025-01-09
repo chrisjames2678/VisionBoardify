@@ -1,8 +1,6 @@
 document.addEventListener('DOMContentLoaded', async () => {
   const container = document.getElementById('mosaic-container');
   const openOptionsButton = document.getElementById('openOptions');
-  const patternButtons = document.querySelectorAll('.pattern-button');
-  let currentPattern = 'grid';
 
   // Handle options button click
   openOptionsButton.addEventListener('click', () => {
@@ -11,18 +9,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     } else {
       console.log('Running in development mode - options page not available');
     }
-  });
-
-  // Handle pattern switching
-  patternButtons.forEach(button => {
-    button.addEventListener('click', () => {
-      if (button.dataset.pattern !== currentPattern) {
-        patternButtons.forEach(btn => btn.classList.remove('active'));
-        button.classList.add('active');
-        currentPattern = button.dataset.pattern;
-        displayMosaic();
-      }
-    });
   });
 
   async function displayMosaic() {
@@ -59,52 +45,20 @@ document.addEventListener('DOMContentLoaded', async () => {
       // Clear container
       container.innerHTML = '';
 
-      if (currentPattern === 'grid') {
-        // Grid layout
-        container.style.display = 'flex';
-        container.style.flexWrap = 'wrap';
-        container.style.alignContent = 'flex-start';
-        container.style.gap = '16px';
+      // Display images in grid layout
+      processedImages.forEach((img, index) => {
+        const tile = document.createElement('div');
+        tile.className = 'image-tile';
+        Object.assign(tile.style, img.style);
 
-        processedImages.forEach((img, index) => {
-          const tile = document.createElement('div');
-          tile.className = 'image-tile';
-          Object.assign(tile.style, img.style);
+        const imgElement = document.createElement('img');
+        imgElement.src = img.src;
+        imgElement.alt = `Vision ${index + 1}`;
+        imgElement.loading = 'lazy';
 
-          const imgElement = document.createElement('img');
-          imgElement.src = img.src;
-          imgElement.alt = `Vision ${index + 1}`;
-          imgElement.loading = 'lazy';
-
-          tile.appendChild(imgElement);
-          container.appendChild(tile);
-        });
-      } else {
-        // Honeycomb layout
-        container.style.display = 'block';
-        container.style.position = 'relative';
-        container.style.height = '100vh';
-
-        const honeycombImages = MosaicGenerator.generateHoneycomb(
-          processedImages,
-          window.innerWidth - 32,
-          window.innerHeight - 32
-        );
-
-        honeycombImages.forEach((img, index) => {
-          const tile = document.createElement('div');
-          tile.className = 'image-tile honeycomb';
-          Object.assign(tile.style, img.style);
-
-          const imgElement = document.createElement('img');
-          imgElement.src = img.src;
-          imgElement.alt = `Vision ${index + 1}`;
-          imgElement.loading = 'lazy';
-
-          tile.appendChild(imgElement);
-          container.appendChild(tile);
-        });
-      }
+        tile.appendChild(imgElement);
+        container.appendChild(tile);
+      });
 
     } catch (error) {
       console.error('Error displaying mosaic:', error);

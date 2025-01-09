@@ -24,11 +24,11 @@ task = "packager.installForAll"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "npx http-server . --cors -c-1 -p 8080 -a 0.0.0.0 -o /newtab.html"
-waitForPort = 8080
+args = "npx http-server . --cors -c-1 -p 3000 -a 0.0.0.0"
+waitForPort = 3000
 
 [deployment]
-run = ["sh", "-c", "npx http-server . --cors -c-1 -p 8080 -a 0.0.0.0 -o /newtab.html"]
+run = ["sh", "-c", "npx http-server . --cors -c-1 -p 3000 -a 0.0.0.0"]
 
 [nix]
 channel = "stable-24_05"
