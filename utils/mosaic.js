@@ -12,8 +12,8 @@ class MosaicGenerator {
         throw new Error('Failed to get canvas context');
       }
 
-      // Set canvas size to match screen size with maximum possible resolution
-      const maxDimension = 16384; // Maximum canvas size supported by most browsers
+      // Set canvas size with device pixel ratio for better quality
+      const maxDimension = 16384;
       const pixelRatio = window.devicePixelRatio || 1;
       const screenWidth = window.innerWidth * pixelRatio;
       const screenHeight = window.innerHeight * pixelRatio;
@@ -28,7 +28,7 @@ class MosaicGenerator {
       canvas.height = screenHeight * scale;
       console.log('Canvas dimensions:', canvas.width, 'x', canvas.height);
 
-      // Load and analyze images with better error handling
+      // Load and analyze images
       const loadedImages = await Promise.all(
         images.map(async (src, index) => {
           try {
@@ -52,46 +52,38 @@ class MosaicGenerator {
                 reject(new Error(`Image ${index + 1} load failed`));
               };
 
-              img.setAttribute('loading', 'eager');
-              img.setAttribute('decoding', 'sync');
               img.src = src;
             });
             return img;
           } catch (error) {
             console.warn(`Skipping image ${index + 1} due to load error:`, error.message);
-            return {
-              element: createPlaceholderImage(400, 300),
-              width: 400,
-              height: 300,
-              aspectRatio: 4/3,
-              area: 120000
-            };
+            return null;
           }
         })
       );
 
-      // Filter out any failed images
-      const validImages = loadedImages.filter(img => img && img.element);
+      // Filter out failed images
+      const validImages = loadedImages.filter(img => img !== null);
       if (validImages.length === 0) {
         throw new Error('No valid images to display');
       }
 
-      // Enhanced sorting with multi-factor weighting
+      // Sort images by area and aspect ratio for optimal layout
       validImages.sort((a, b) => {
-        const areaWeight = 0.85;
-        const aspectWeight = 0.15;
+        const areaWeight = 0.7;
+        const aspectWeight = 0.3;
         const areaDiff = b.area - a.area;
         const aspectDiff = Math.abs(1 - a.aspectRatio) - Math.abs(1 - b.aspectRatio);
         return areaWeight * areaDiff + aspectWeight * aspectDiff;
       });
 
-      // Calculate optimal grid layout
+      // Calculate grid dimensions
       const totalImages = validImages.length;
       const canvasAspectRatio = canvas.width / canvas.height;
 
-      // Dynamic padding calculation with aggressive reduction
-      const basePadding = 0.006; // Further reduced base padding to 0.6%
-      const padding = Math.max(0.002, basePadding * Math.pow(0.75, Math.floor(totalImages / 3)));
+      // Dynamic gap calculation based on image count
+      const baseGap = Math.max(0.001, 0.01 / Math.sqrt(totalImages));
+      const padding = baseGap;
 
       // Calculate weighted aspect ratio for optimal grid
       const totalArea = validImages.reduce((sum, img) => sum + img.area, 0);
@@ -100,13 +92,12 @@ class MosaicGenerator {
         0
       );
 
-      // Dynamic grid calculation with improved aspect ratio handling
+      // Optimize grid dimensions
       let cols = Math.round(Math.sqrt(totalImages * weightedAspectRatio * canvasAspectRatio));
       let rows = Math.ceil(totalImages / cols);
 
-      // Optimize grid dimensions for minimal waste
-      const targetRatio = canvasAspectRatio * 0.998;
-      while ((cols / rows < targetRatio && cols < totalImages) || 
+      // Adjust grid for better aspect ratio match
+      while ((cols / rows < canvasAspectRatio * 0.95 && cols < totalImages) || 
              (cols * rows < totalImages)) {
         cols++;
         rows = Math.ceil(totalImages / cols);
@@ -114,55 +105,49 @@ class MosaicGenerator {
 
       console.log('Grid layout:', cols, 'x', rows, 'for', totalImages, 'images');
 
-      // Calculate base cell dimensions
+      // Calculate cell dimensions
       const cellWidth = canvas.width / cols;
       const cellHeight = canvas.height / rows;
+
+      // Initialize tracking arrays for dynamic spacing
+      const rowHeights = new Array(rows).fill(0);
+      const colWidths = new Array(cols).fill(0);
 
       // Clear canvas
       ctx.fillStyle = '#FFFFFF';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-      // Layout images with enhanced gap filling
       let currentRow = 0;
       let currentCol = 0;
-      let rowHeights = new Array(rows).fill(0);
-      let colWidths = new Array(cols).fill(0);
 
+      // Layout images with adaptive scaling
       for (let i = 0; i < validImages.length; i++) {
         const img = validImages[i];
         const nextImg = validImages[i + 1];
         const prevImg = validImages[i - 1];
 
-        // Enhanced cell size adjustments with progressive scaling
-        const emptyColFactor = colWidths[currentCol] === 0 ? 0.35 : 0.25;
-        const emptyRowFactor = rowHeights[currentRow] === 0 ? 0.35 : 0.25;
+        // Calculate dynamic scale factors
+        const scaleBase = 1.2;
+        const neighborBonus = 0.15;
+        let scaleMultiplier = scaleBase;
 
-        const cellWidthAdjust = Math.min(1.5, 1 + emptyColFactor);
-        const cellHeightAdjust = Math.min(1.5, 1 + emptyRowFactor);
-
-        // Adjust for similar aspect ratios with increased effect
+        // Increase scale for similar aspect ratios
         if (nextImg && Math.abs(img.aspectRatio - nextImg.aspectRatio) < 0.2) {
-          const similarityFactor = 1.3;
-          cellWidthAdjust *= similarityFactor;
+          scaleMultiplier += neighborBonus;
         }
         if (prevImg && Math.abs(img.aspectRatio - prevImg.aspectRatio) < 0.2) {
-          const similarityFactor = 1.3;
-          cellHeightAdjust *= similarityFactor;
+          scaleMultiplier += neighborBonus;
         }
 
-        // Calculate optimal dimensions with minimal padding
-        const paddedWidth = cellWidth * (1 - padding) * cellWidthAdjust;
-        const paddedHeight = cellHeight * (1 - padding) * cellHeightAdjust;
+        // Calculate dimensions with minimal gaps
+        const paddedWidth = cellWidth * (1 - padding) * scaleMultiplier;
+        const paddedHeight = cellHeight * (1 - padding) * scaleMultiplier;
 
-        // Scale image with adaptive overlap
-        const baseScale = Math.min(
+        // Scale image while maintaining aspect ratio
+        const scale = Math.min(
           paddedWidth / img.width,
           paddedHeight / img.height
         );
-
-        // Apply progressive overlap based on position
-        const overlapFactor = 1.2 - (currentRow + currentCol) / (rows + cols) * 0.05;
-        const scale = baseScale * overlapFactor;
 
         const width = img.width * scale;
         const height = img.height * scale;
@@ -171,32 +156,22 @@ class MosaicGenerator {
         rowHeights[currentRow] = Math.max(rowHeights[currentRow], height);
         colWidths[currentCol] = Math.max(colWidths[currentCol], width);
 
-        // Position image with optimal offset and increased overlap
-        const xOffset = (cellWidth - width) / 2 * (1 - padding * 1.5);
-        const yOffset = (cellHeight - height) / 2 * (1 - padding * 1.5);
+        // Calculate optimal position with minimal gaps
+        const xOffset = (cellWidth - width) / 2 * (1 - padding);
+        const yOffset = (cellHeight - height) / 2 * (1 - padding);
         const x = currentCol * cellWidth + xOffset;
         const y = currentRow * cellHeight + yOffset;
 
         try {
-          // Draw with high quality
-          const tempCanvas = document.createElement('canvas');
-          const tempCtx = tempCanvas.getContext('2d', { alpha: true });
-          if (!tempCtx) {
-            throw new Error('Failed to get temporary canvas context');
-          }
-
-          tempCanvas.width = width;
-          tempCanvas.height = height;
-
-          tempCtx.imageSmoothingEnabled = true;
-          tempCtx.imageSmoothingQuality = 'high';
-          tempCtx.drawImage(img.element, 0, 0, width, height);
-
-          // Draw final image
-          ctx.drawImage(tempCanvas, x, y, width, height);
+          // Draw image with high quality
+          ctx.save();
+          ctx.imageSmoothingEnabled = true;
+          ctx.imageSmoothingQuality = 'high';
+          ctx.drawImage(img.element, x, y, width, height);
+          ctx.restore();
         } catch (drawError) {
           console.error('Error drawing image:', drawError);
-          continue; // Skip this image but continue with others
+          continue;
         }
 
         // Move to next position
@@ -216,42 +191,15 @@ class MosaicGenerator {
   }
 }
 
-// Helper function to create placeholder images
-function createPlaceholderImage(width, height) {
-  const canvas = document.createElement('canvas');
-  canvas.width = width;
-  canvas.height = height;
-  const ctx = canvas.getContext('2d');
-
-  // Create a gradient background
-  const gradient = ctx.createLinearGradient(0, 0, width, height);
-  gradient.addColorStop(0, '#f0f0f0');
-  gradient.addColorStop(1, '#e0e0e0');
-  ctx.fillStyle = gradient;
-  ctx.fillRect(0, 0, width, height);
-
-  // Add placeholder text
-  ctx.fillStyle = '#999';
-  ctx.font = '20px Arial';
-  ctx.textAlign = 'center';
-  ctx.textBaseline = 'middle';
-  ctx.fillText('Image Load Failed', width/2, height/2);
-
-  const img = new Image();
-  img.src = canvas.toDataURL();
-  return img;
-}
-
 // Add test function for local development
 if (typeof chrome === 'undefined') {
   console.log('Running in development mode');
   window.testMosaic = async function(numImages = 10) {
-    // Use a mix of different image sizes for better testing
     const testUrls = [
-      'https://via.placeholder.com/800x600',
-      'https://via.placeholder.com/600x800',
-      'https://via.placeholder.com/1024x768',
-      'https://via.placeholder.com/768x1024',
+      'https://picsum.photos/800/600',
+      'https://picsum.photos/600/800',
+      'https://picsum.photos/1024/768',
+      'https://picsum.photos/768/1024',
     ];
 
     const testImages = Array(numImages).fill(null).map((_, i) => 
