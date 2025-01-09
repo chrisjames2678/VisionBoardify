@@ -68,22 +68,37 @@ class MosaicGenerator {
         throw new Error('No valid images to display');
       }
 
-      // Sort images by area and aspect ratio for optimal layout
-      validImages.sort((a, b) => {
-        const areaWeight = 0.7;
-        const aspectWeight = 0.3;
-        const areaDiff = b.area - a.area;
-        const aspectDiff = Math.abs(1 - a.aspectRatio) - Math.abs(1 - b.aspectRatio);
-        return areaWeight * areaDiff + aspectWeight * aspectDiff;
-      });
-
-      // Calculate grid dimensions
+      // Calculate optimal grid dimensions
       const totalImages = validImages.length;
       const canvasAspectRatio = canvas.width / canvas.height;
 
-      // Dynamic gap calculation based on image count
-      const baseGap = Math.max(0.001, 0.01 / Math.sqrt(totalImages));
-      const padding = baseGap;
+      // Enhanced gap calculation with generous spacing
+      const getGapSize = (row, col, maxRow, maxCol) => {
+        const edgeFactor = (row === 0 || row === maxRow - 1 || col === 0 || col === maxCol - 1) ? 0.7 : 1;
+        const cornerFactor = ((row === 0 || row === maxRow - 1) && (col === 0 || col === maxCol - 1)) ? 0.6 : 1;
+        const basePadding = 0.15; // Increased to 15% base padding
+        return basePadding * edgeFactor * cornerFactor;
+      };
+
+      // Group images by similar aspect ratios (with larger increments)
+      const aspectGroups = {};
+      validImages.forEach(img => {
+        const roundedAspect = Math.round(img.aspectRatio); // Rounded to whole numbers for looser grouping
+        if (!aspectGroups[roundedAspect]) {
+          aspectGroups[roundedAspect] = [];
+        }
+        aspectGroups[roundedAspect].push(img);
+      });
+
+      // Sort images within groups by area
+      Object.values(aspectGroups).forEach(group => {
+        group.sort((a, b) => b.area - a.area);
+      });
+
+      // Flatten groups back to array, keeping similar aspects together
+      const sortedImages = Object.values(aspectGroups)
+        .sort((a, b) => b[0].area - a[0].area)
+        .flat();
 
       // Calculate weighted aspect ratio for optimal grid
       const totalArea = validImages.reduce((sum, img) => sum + img.area, 0);
@@ -92,11 +107,11 @@ class MosaicGenerator {
         0
       );
 
-      // Optimize grid dimensions
-      let cols = Math.round(Math.sqrt(totalImages * weightedAspectRatio * canvasAspectRatio));
+      // Significantly reduce number of columns for more spacing
+      let cols = Math.round(Math.sqrt(totalImages * weightedAspectRatio * canvasAspectRatio * 0.6));
       let rows = Math.ceil(totalImages / cols);
 
-      // Adjust grid for better aspect ratio match
+      // Adjust grid for optimal aspect ratio match
       while ((cols / rows < canvasAspectRatio * 0.95 && cols < totalImages) || 
              (cols * rows < totalImages)) {
         cols++;
@@ -120,26 +135,42 @@ class MosaicGenerator {
       let currentRow = 0;
       let currentCol = 0;
 
-      // Layout images with adaptive scaling
-      for (let i = 0; i < validImages.length; i++) {
-        const img = validImages[i];
-        const nextImg = validImages[i + 1];
-        const prevImg = validImages[i - 1];
+      // Layout images with significantly reduced scaling
+      for (let i = 0; i < sortedImages.length; i++) {
+        const img = sortedImages[i];
+        const nextImg = sortedImages[i + 1];
+        const prevImg = sortedImages[i - 1];
 
-        // Calculate dynamic scale factors
-        const scaleBase = 1.2;
-        const neighborBonus = 0.15;
+        // Greatly reduced scale factors
+        const scaleBase = 0.85; // Significantly reduced from 1.15
+        const neighborBonus = 0.05; // Reduced from 0.1
+        const edgeBonus = 0.03; // Reduced from 0.05
+        const cornerBonus = 0.05; // Reduced from 0.1
+        const aspectMatchBonus = 0.03; // Reduced from 0.05
+
         let scaleMultiplier = scaleBase;
 
-        // Increase scale for similar aspect ratios
-        if (nextImg && Math.abs(img.aspectRatio - nextImg.aspectRatio) < 0.2) {
-          scaleMultiplier += neighborBonus;
+        // Add minimal bonus scale for similar aspect ratios
+        if (nextImg && Math.abs(img.aspectRatio - nextImg.aspectRatio) < 0.3) {
+          scaleMultiplier += neighborBonus + aspectMatchBonus;
         }
-        if (prevImg && Math.abs(img.aspectRatio - prevImg.aspectRatio) < 0.2) {
-          scaleMultiplier += neighborBonus;
+        if (prevImg && Math.abs(img.aspectRatio - prevImg.aspectRatio) < 0.3) {
+          scaleMultiplier += neighborBonus + aspectMatchBonus;
         }
 
-        // Calculate dimensions with minimal gaps
+        // Enhanced position-based scaling with minimal factors
+        const isEdge = currentRow === 0 || currentRow === rows - 1 || 
+                      currentCol === 0 || currentCol === cols - 1;
+        const isCorner = (currentRow === 0 || currentRow === rows - 1) && 
+                        (currentCol === 0 || currentCol === cols - 1);
+
+        if (isEdge) scaleMultiplier += edgeBonus;
+        if (isCorner) scaleMultiplier += cornerBonus;
+
+        // Get dynamic padding based on position
+        const padding = getGapSize(currentRow, currentCol, rows, cols);
+
+        // Calculate dimensions with enhanced gap minimization
         const paddedWidth = cellWidth * (1 - padding) * scaleMultiplier;
         const paddedHeight = cellHeight * (1 - padding) * scaleMultiplier;
 
@@ -156,9 +187,9 @@ class MosaicGenerator {
         rowHeights[currentRow] = Math.max(rowHeights[currentRow], height);
         colWidths[currentCol] = Math.max(colWidths[currentCol], width);
 
-        // Calculate optimal position with minimal gaps
-        const xOffset = (cellWidth - width) / 2 * (1 - padding);
-        const yOffset = (cellHeight - height) / 2 * (1 - padding);
+        // Calculate optimal position with enhanced spacing
+        const xOffset = (cellWidth - width) / 2;
+        const yOffset = (cellHeight - height) / 2;
         const x = currentCol * cellWidth + xOffset;
         const y = currentRow * cellHeight + yOffset;
 
