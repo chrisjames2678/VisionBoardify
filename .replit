@@ -10,26 +10,11 @@ author = "agent"
 
 [[workflows.workflow.tasks]]
 task = "workflow.run"
-args = "Extension Server"
+args = "Extension Development Server"
 
 [[workflows.workflow.tasks]]
 task = "workflow.run"
-args = "Extension Development Server"
-
-[[workflows.workflow]]
-name = "Extension Server"
-author = "agent"
-
-[workflows.workflow.metadata]
-agentRequireRestartOnSave = false
-
-[[workflows.workflow.tasks]]
-task = "packager.installForAll"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "npx http-server . -p 3000 --cors -c-1"
-waitForPort = 3000
+args = "Extension Server"
 
 [[workflows.workflow]]
 name = "Extension Development Server"
@@ -45,6 +30,21 @@ task = "packager.installForAll"
 task = "shell.exec"
 args = "npx http-server . -p 3001 --cors -c-1"
 waitForPort = 3001
+
+[[workflows.workflow]]
+name = "Extension Server"
+author = "agent"
+
+[workflows.workflow.metadata]
+agentRequireRestartOnSave = false
+
+[[workflows.workflow.tasks]]
+task = "packager.installForAll"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npx http-server . -p 3000 --cors -c-1"
+waitForPort = 3000
 
 [deployment]
 run = ["sh", "-c", "npx http-server . -p 3000 --cors -c-1"]
