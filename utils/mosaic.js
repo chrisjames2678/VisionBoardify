@@ -1,13 +1,17 @@
 class MosaicGenerator {
+  static PATTERNS = {
+    GRID: 'grid',
+    HONEYCOMB: 'honeycomb'
+  };
+
   static async generate(images) {
     try {
       console.log('Processing', images.length, 'images for mosaic');
 
       // Calculate viewport constraints
-      const viewportWidth = window.innerWidth - 32; // Account for container padding
+      const viewportWidth = window.innerWidth - 32; // Account for padding
       const viewportHeight = window.innerHeight - 32;
-      const maxImageWidth = viewportWidth * 0.4;  // 40% of viewport width
-      const maxImageHeight = viewportHeight * 0.4; // 40% of viewport height
+      const maxImagesPerRow = Math.min(3, images.length); // Max 3 images per row
 
       // Load and validate images
       const loadedImages = await Promise.all(
@@ -44,96 +48,89 @@ class MosaicGenerator {
       // Sort images by aspect ratio for better grouping
       validImages.sort((a, b) => b.aspectRatio - a.aspectRatio);
 
-      // Initialize row tracking
-      const rows = [];
+      // Group images into rows
+      const result = [];
       let currentRow = [];
-      let currentRowWidth = 0;
 
-      // Process images
-      validImages.forEach((img) => {
-        // Calculate initial dimensions based on max constraints
-        let imgHeight = maxImageHeight;
-        let imgWidth = imgHeight * img.aspectRatio;
-
-        // Adjust if width exceeds max
-        if (imgWidth > maxImageWidth) {
-          imgWidth = maxImageWidth;
-          imgHeight = imgWidth / img.aspectRatio;
+      validImages.forEach((img, index) => {
+        // Start a new row if we've reached the maximum images per row
+        if (currentRow.length >= maxImagesPerRow) {
+          result.push(...currentRow);
+          currentRow = [];
         }
 
-        // Calculate maximum allowed gap (20% of viewport width)
-        const maxGapWidth = viewportWidth * 0.2;
+        // Calculate dimensions while maintaining aspect ratio
+        const maxWidth = viewportWidth / maxImagesPerRow * 0.9; // 90% of available width per image
+        const maxHeight = viewportHeight * 0.4; // 40% of viewport height
 
-        // Check if adding this image would exceed width or gap constraints
-        const potentialWidth = currentRowWidth + imgWidth;
-        const estimatedGap = currentRow.length * 8; // 8px minimum gap
-        const totalWidth = potentialWidth + estimatedGap;
+        let imgWidth = maxHeight * img.aspectRatio;
+        let imgHeight = maxHeight;
 
-        // Start new row if needed
-        if (currentRow.length > 0 && (totalWidth > viewportWidth || 
-            (viewportWidth - totalWidth) > maxGapWidth)) {
-
-          // Scale current row to fit width
-          const rowScale = Math.min(
-            (viewportWidth - (currentRow.length - 1) * 8) / currentRowWidth,
-            1
-          );
-
-          rows.push(...currentRow.map((item, i) => ({
-            ...item,
-            style: {
-              width: `${item.width * rowScale}px`,
-              height: `${item.height * rowScale}px`,
-              flex: '1 1 auto',
-              marginRight: i < currentRow.length - 1 ? '8px' : '0'
-            },
-            newRow: true
-          })));
-
-          currentRow = [];
-          currentRowWidth = 0;
+        // Adjust if width exceeds max
+        if (imgWidth > maxWidth) {
+          imgWidth = maxWidth;
+          imgHeight = imgWidth / img.aspectRatio;
         }
 
         // Add image to current row
         currentRow.push({
           ...img,
-          width: imgWidth,
-          height: imgHeight,
           style: {
             width: `${imgWidth}px`,
-            height: `${imgHeight}px`,
-            flex: '1 1 auto',
-            marginRight: '8px'
-          }
+            height: `${imgHeight}px`
+          },
+          newRow: currentRow.length === 0
         });
-
-        currentRowWidth += imgWidth;
       });
 
-      // Handle last row
+      // Add remaining images in the last row
       if (currentRow.length > 0) {
-        const rowScale = Math.min(
-          (viewportWidth - (currentRow.length - 1) * 8) / currentRowWidth,
-          1
-        );
-
-        rows.push(...currentRow.map((item, i) => ({
-          ...item,
-          style: {
-            width: `${item.width * rowScale}px`,
-            height: `${item.height * rowScale}px`,
-            flex: '1 1 auto',
-            marginRight: i < currentRow.length - 1 ? '8px' : '0'
-          },
-          newRow: true
-        })));
+        result.push(...currentRow);
       }
 
-      return rows;
+      return result;
+
     } catch (error) {
       console.error('Error in image processing:', error);
       throw error;
     }
+  }
+
+  static generateHoneycomb(validImages, viewportWidth, viewportHeight, maxImageWidth, maxImageHeight) {
+    // Calculate hexagon dimensions
+    const hexWidth = Math.min(maxImageWidth, maxImageHeight) * 0.8;  // Slightly smaller for overlap
+    const hexHeight = hexWidth * 0.866; // height = width * sin(60°)
+    const horizontalSpacing = hexWidth * 0.75; // 25% overlap for tight packing
+    const verticalSpacing = hexHeight * 0.85; // 15% overlap for tight packing
+
+    // Calculate grid dimensions
+    const columns = Math.floor(viewportWidth / horizontalSpacing);
+    const rows = Math.ceil(validImages.length / columns);
+
+    return validImages.map((img, index) => {
+      const row = Math.floor(index / columns);
+      const col = index % columns;
+      const isOddRow = row % 2 === 1;
+
+      // Calculate position with offset for odd rows
+      const x = col * horizontalSpacing + (isOddRow ? horizontalSpacing / 2 : 0);
+      const y = row * verticalSpacing;
+
+      return {
+        ...img,
+        style: {
+          position: 'absolute',
+          left: `${x}px`,
+          top: `${y}px`,
+          width: `${hexWidth}px`,
+          height: `${hexHeight}px`,
+          clipPath: 'polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%)',
+          transition: 'transform 0.3s ease',
+          zIndex: isOddRow ? 1 : 0
+        },
+        isHoneycomb: true
+      };
+    });
   }
 }
 

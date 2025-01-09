@@ -13,20 +13,19 @@ body {
   padding: 16px;
   box-sizing: border-box;
   display: flex;
-  flex-direction: column;
-  gap: 8px;
+  flex-wrap: wrap;
+  gap: 16px;
+  align-content: flex-start;
   overflow: auto;
-  align-items: stretch;
 }
 
 .mosaic-row {
   display: flex;
   width: 100%;
-  justify-content: flex-start;
+  gap: 16px;
+  justify-content: center;
   align-items: center;
-  flex-wrap: nowrap;
-  margin-bottom: 8px;
-  min-height: 0;
+  min-height: 200px; /* From original */
 }
 
 .image-tile {
@@ -35,15 +34,8 @@ body {
   border-radius: 8px;
   overflow: hidden;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  transition: transform 0.2s ease;
-  flex: 1 1 auto;
-  max-width: 40vw;
-  max-height: 40vh;
-}
-
-.image-tile:hover {
-  transform: scale(1.02);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  transition: all 0.3s ease;
+  min-width: 0; /* Prevents flex items from overflowing */
 }
 
 .image-tile img {
@@ -53,11 +45,31 @@ body {
   display: block;
 }
 
+.image-tile.honeycomb {
+  position: absolute;
+  border-radius: 0;
+  overflow: hidden;
+  background: white;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.image-tile.honeycomb:hover {
+  transform: scale(1.05);
+  z-index: 10;
+}
+
+.image-tile:hover {
+  transform: scale(1.02);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+
+/* Settings button */
 .settings-button {
   position: fixed;
   bottom: 20px;
   right: 20px;
-  z-index: 10;
+  z-index: 100;
 }
 
 #openOptions {
@@ -77,16 +89,58 @@ body {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
+/* Pattern switcher */
+.pattern-switcher {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 100;
+}
+
+.pattern-button {
+  padding: 8px 16px;
+  margin-left: 8px;
+  border-radius: 16px;
+  border: none;
+  background: white;
+  color: #333;
+  font-size: 12px;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s ease;
+}
+
+.pattern-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.pattern-button.active {
+  background: #333;
+  color: white;
+}
+
 /* Responsive adjustments */
 @media (max-width: 768px) {
   #mosaic-container {
     padding: 8px;
+    gap: 8px;
+  }
+
+  .mosaic-row {
+    gap: 8px;
   }
 }
 
 @media (max-width: 480px) {
   #mosaic-container {
     padding: 4px;
+    gap: 4px;
+  }
+
+  .mosaic-row {
+    gap: 4px;
+    min-height: 100px;
   }
 
   .settings-button {

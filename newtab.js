@@ -2,12 +2,6 @@ document.addEventListener('DOMContentLoaded', async () => {
   const container = document.getElementById('mosaic-container');
   const openOptionsButton = document.getElementById('openOptions');
 
-  // Show loading state
-  container.innerHTML = `
-    <div style="text-align: center; padding-top: 40vh; color: #666;">
-      <p>Loading vision board...</p>
-    </div>`;
-
   // Handle options button click
   openOptionsButton.addEventListener('click', () => {
     if (typeof chrome !== 'undefined' && chrome.runtime) {
@@ -24,12 +18,14 @@ document.addEventListener('DOMContentLoaded', async () => {
       if (typeof chrome !== 'undefined' && chrome.runtime) {
         images = await StorageManager.getImages();
       } else {
-        // Development mode: use local test images
+        // Development mode: use test images
         images = [
           'attached_assets/Screenshot 2025-01-09 at 19.56.05.png',
           'attached_assets/Screenshot 2025-01-09 at 20.09.35.png',
           'attached_assets/Screenshot 2025-01-09 at 20.21.22.png',
-          'attached_assets/Screenshot 2025-01-09 at 20.36.33.png'
+          'attached_assets/Screenshot 2025-01-09 at 20.36.33.png',
+          'attached_assets/Screenshot 2025-01-09 at 20.54.44.png',
+          'attached_assets/Screenshot 2025-01-09 at 21.11.59.png'
         ];
       }
 
@@ -46,18 +42,20 @@ document.addEventListener('DOMContentLoaded', async () => {
       // Process images through MosaicGenerator
       const processedImages = await MosaicGenerator.generate(images);
 
-      // Clear container and create image rows
+      // Clear container
       container.innerHTML = '';
 
+      // Create rows and add images
       let currentRow;
       processedImages.forEach((img, index) => {
-        // Create new row if needed
-        if (!currentRow || img.newRow) {
+        // Start a new row if needed
+        if (img.newRow || !currentRow) {
           currentRow = document.createElement('div');
           currentRow.className = 'mosaic-row';
           container.appendChild(currentRow);
         }
 
+        // Create image tile
         const tile = document.createElement('div');
         tile.className = 'image-tile';
         Object.assign(tile.style, img.style);
