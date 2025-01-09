@@ -1,0 +1,26 @@
+{
+  "manifest_version": 3,
+  "name": "Vision Board Mosaic",
+  "version": "1.0",
+  "description": "Generate vision board mosaics as new tab backgrounds",
+  "permissions": [
+    "storage",
+    "unlimitedStorage"
+  ],
+  "chrome_url_overrides": {
+    "newtab": "newtab.html"
+  },
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  },
+  "options_page": "options.html",
+  "web_accessible_resources": [{
+    "resources": ["*.js", "*.css"],
+    "matches": ["<all_urls>"]
+  }],
+  "icons": {
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  }
+}
