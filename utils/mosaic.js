@@ -18,8 +18,8 @@ class MosaicGenerator {
       canvas.height = window.innerHeight * pixelRatio;
       console.log('Canvas dimensions:', canvas.width, 'x', canvas.height);
 
-      // Screen border padding (5% of smallest dimension)
-      const borderPadding = Math.min(canvas.width, canvas.height) * 0.05;
+      // Screen border padding (3% of smallest dimension)
+      const borderPadding = Math.min(canvas.width, canvas.height) * 0.03;
 
       // Load and analyze images
       const loadedImages = await Promise.all(
@@ -66,13 +66,13 @@ class MosaicGenerator {
       ctx.fillStyle = '#FFFFFF';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-      // For 8 images, use a 3x3 grid (9 slots) for better distribution
-      let gridRows = 3;
-      let gridCols = 3;
+      // Use a 3x3 grid with high overlap for tight packing
+      const gridRows = 3;
+      const gridCols = 3;
 
-      // Calculate cell size with maximum overlap
-      const cellWidth = (availableWidth / (gridCols - 0.95));
-      const cellHeight = (availableHeight / (gridRows - 0.95));
+      // Calculate base cell size with maximum overlap
+      const cellWidth = availableWidth / (gridCols - 0.85);  // Increased overlap
+      const cellHeight = availableHeight / (gridRows - 0.85); // Increased overlap
 
       // Generate positions with enhanced clustering
       const positions = [];
@@ -82,82 +82,57 @@ class MosaicGenerator {
         const col = index % gridCols;
 
         // Calculate base position with minimal spacing
-        const baseX = borderPadding + (col * cellWidth * 0.35) + (cellWidth / 2);
-        const baseY = borderPadding + (row * cellHeight * 0.35) + (cellHeight / 2);
+        const baseX = borderPadding + (col * cellWidth * 0.35); // Tighter spacing
+        const baseY = borderPadding + (row * cellHeight * 0.35); // Tighter spacing
 
-        // Calculate offset based on neighboring images
-        const neighborPositions = positions.slice(-4);
-        let offsetX = 0;
-        let offsetY = 0;
+        // Add controlled random variation for natural layout
+        const offsetX = (Math.random() * 0.5) * cellWidth;
+        const offsetY = (Math.random() * 0.5) * cellHeight;
 
-        if (neighborPositions.length > 0) {
-          // Average distance to recent neighbors
-          const avgX = neighborPositions.reduce((sum, pos) => sum + pos.x, 0) / neighborPositions.length;
-          const avgY = neighborPositions.reduce((sum, pos) => sum + pos.y, 0) / neighborPositions.length;
-
-          // Add offset away from average position (creates natural spacing)
-          offsetX = (baseX - avgX) * 0.3;
-          offsetY = (baseY - avgY) * 0.3;
-        }
-
-        // Add controlled random variation
-        offsetX += (Math.random() * 0.5 - 0.25) * cellWidth;
-        offsetY += (Math.random() * 0.5 - 0.25) * cellHeight;
-
-        // Calculate optimal scale based on position and neighbors
+        // Calculate optimal scale based on position
         const maxScale = Math.min(
-          (cellWidth * 1.8) / img.width,
-          (cellHeight * 1.8) / img.height
+          (cellWidth * 1.8) / img.width,   // Increased max scale
+          (cellHeight * 1.8) / img.height  // for better coverage
         );
 
-        // Vary scale based on position and aspect ratio
-        const isFeature = index < 3;
-        const similarAspectRatio = index > 0 && 
-          Math.abs(img.aspectRatio - validImages[index-1].aspectRatio) < 0.2;
+        // Scale adjustment factors
+        const isEdge = row === 0 || row === gridRows - 1 || col === 0 || col === gridCols - 1;
+        const isCorner = (row === 0 || row === gridRows - 1) && (col === 0 || col === gridCols - 1);
 
-        let baseScale = maxScale * (isFeature ? 1.2 : 1.0);
-        if (similarAspectRatio) baseScale *= 1.15;
+        // Adjust scaling based on position
+        let scaleAdjustment = 1.0;
+        if (isCorner) scaleAdjustment = 1.4; // Larger corner images
+        else if (isEdge) scaleAdjustment = 1.3; // Larger edge images
 
-        // Ensure minimum scale for visibility
-        const finalScale = Math.max(
-          baseScale * (0.95 + Math.random() * 0.2),
-          maxScale * 0.9
-        );
+        // Final scale calculation with minimal randomness
+        const finalScale = maxScale * scaleAdjustment * (0.98 + Math.random() * 0.04);
 
-        // Calculate final position with offset
-        let x = baseX + offsetX;
-        let y = baseY + offsetY;
-
-        // Ensure image stays within borders
+        // Calculate dimensions
         const width = img.width * finalScale;
         const height = img.height * finalScale;
-        x = Math.min(Math.max(x, borderPadding + width/2), canvas.width - width/2 - borderPadding);
-        y = Math.min(Math.max(y, borderPadding + height/2), canvas.height - height/2 - borderPadding);
 
-        positions.push({ x, y, scale: finalScale });
-        console.log(`Position calculated for image ${index + 1}: (${x.toFixed(0)}, ${y.toFixed(0)}), scale: ${finalScale.toFixed(2)}`);
+        // Center position in cell with offset
+        const x = baseX + (cellWidth - width) / 2 + offsetX;
+        const y = baseY + (cellHeight - height) / 2 + offsetY;
+
+        // Ensure image stays within borders
+        const constrainedX = Math.min(Math.max(x, borderPadding), canvas.width - width - borderPadding);
+        const constrainedY = Math.min(Math.max(y, borderPadding), canvas.height - height - borderPadding);
+
+        positions.push({ x: constrainedX, y: constrainedY, scale: finalScale });
       });
 
-      // Draw images with optimized order (outer to inner)
-      const drawOrder = positions.map((pos, index) => ({ index, pos }))
-        .sort((a, b) => {
-          const aDist = Math.abs(a.pos.x - canvas.width/2) + Math.abs(a.pos.y - canvas.height/2);
-          const bDist = Math.abs(b.pos.x - canvas.width/2) + Math.abs(b.pos.y - canvas.height/2);
-          return bDist - aDist; // Draw outer images first
-        });
-
-      drawOrder.forEach(({ index, pos }) => {
+      // Draw images in optimal order (back to front)
+      positions.forEach((pos, index) => {
         const img = validImages[index];
         const width = img.width * pos.scale;
         const height = img.height * pos.scale;
-
-        console.log(`Drawing image ${index + 1} at (${pos.x.toFixed(0)}, ${pos.y.toFixed(0)}), size: ${width.toFixed(0)}x${height.toFixed(0)}`);
 
         try {
           ctx.save();
           ctx.imageSmoothingEnabled = true;
           ctx.imageSmoothingQuality = 'high';
-          ctx.drawImage(img.element, pos.x - width/2, pos.y - height/2, width, height);
+          ctx.drawImage(img.element, pos.x, pos.y, width, height);
           ctx.restore();
         } catch (error) {
           console.error(`Error drawing image ${index + 1}:`, error);
