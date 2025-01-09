@@ -7,8 +7,11 @@
 </head>
 <body>
   <div class="container">
-    <h1>Vision Board Settings</h1>
-    
+    <div class="header">
+      <h1>Vision Board Settings</h1>
+      <button id="backToVisionBoard" class="back-button">Back to Vision Board</button>
+    </div>
+
     <div class="upload-section">
       <label for="imageUpload" class="upload-button">
         Add New Images
@@ -17,13 +20,13 @@
     </div>
 
     <div class="images-grid" id="imagesGrid"></div>
-    
+
     <div class="settings-section">
       <h2>Current Images</h2>
       <p class="image-count">Images in your vision board: <span id="imageCount">0</span></p>
     </div>
   </div>
-  
+
   <script src="utils/storage.js"></script>
   <script src="options.js"></script>
 </body>

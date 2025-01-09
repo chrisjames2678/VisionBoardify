@@ -16,7 +16,7 @@
   },
   "options_page": "options.html",
   "web_accessible_resources": [{
-    "resources": ["*.js", "*.css"],
+    "resources": ["*.js", "*.css", "images/*"],
     "matches": ["<all_urls>"]
   }],
   "icons": {
