@@ -11,7 +11,13 @@ class MosaicGenerator {
       // Calculate viewport constraints
       const viewportWidth = window.innerWidth - 32; // Account for padding
       const viewportHeight = window.innerHeight - 32;
-      const maxImagesPerRow = Math.min(3, images.length); // Max 3 images per row
+
+      // Maximum size constraints (40% of viewport)
+      const maxImageWidth = viewportWidth * 0.4;
+      const maxImageHeight = viewportHeight * 0.4;
+
+      // Maximum gap (20% of viewport width)
+      const maxGap = viewportWidth * 0.2;
 
       // Load and validate images
       const loadedImages = await Promise.all(
@@ -46,49 +52,27 @@ class MosaicGenerator {
       }
 
       // Sort images by aspect ratio for better grouping
-      validImages.sort((a, b) => b.aspectRatio - a.aspectRatio);
+      validImages.sort((a, b) => Math.abs(1 - a.aspectRatio) - Math.abs(1 - b.aspectRatio));
 
-      // Group images into rows
-      const result = [];
-      let currentRow = [];
+      return validImages.map(img => {
+        // Calculate base dimensions
+        let imgHeight = maxImageHeight;
+        let imgWidth = imgHeight * img.aspectRatio;
 
-      validImages.forEach((img, index) => {
-        // Start a new row if we've reached the maximum images per row
-        if (currentRow.length >= maxImagesPerRow) {
-          result.push(...currentRow);
-          currentRow = [];
-        }
-
-        // Calculate dimensions while maintaining aspect ratio
-        const maxWidth = viewportWidth / maxImagesPerRow * 0.9; // 90% of available width per image
-        const maxHeight = viewportHeight * 0.4; // 40% of viewport height
-
-        let imgWidth = maxHeight * img.aspectRatio;
-        let imgHeight = maxHeight;
-
-        // Adjust if width exceeds max
-        if (imgWidth > maxWidth) {
-          imgWidth = maxWidth;
+        // Scale down if width exceeds maximum
+        if (imgWidth > maxImageWidth) {
+          imgWidth = maxImageWidth;
           imgHeight = imgWidth / img.aspectRatio;
         }
 
-        // Add image to current row
-        currentRow.push({
+        return {
           ...img,
           style: {
             width: `${imgWidth}px`,
             height: `${imgHeight}px`
-          },
-          newRow: currentRow.length === 0
-        });
+          }
+        };
       });
-
-      // Add remaining images in the last row
-      if (currentRow.length > 0) {
-        result.push(...currentRow);
-      }
-
-      return result;
 
     } catch (error) {
       console.error('Error in image processing:', error);
@@ -96,14 +80,12 @@ class MosaicGenerator {
     }
   }
 
-  static generateHoneycomb(validImages, viewportWidth, viewportHeight, maxImageWidth, maxImageHeight) {
-    // Calculate hexagon dimensions
-    const hexWidth = Math.min(maxImageWidth, maxImageHeight) * 0.8;  // Slightly smaller for overlap
-    const hexHeight = hexWidth * 0.866; // height = width * sin(60°)
-    const horizontalSpacing = hexWidth * 0.75; // 25% overlap for tight packing
-    const verticalSpacing = hexHeight * 0.85; // 15% overlap for tight packing
+  static generateHoneycomb(validImages, viewportWidth, viewportHeight) {
+    const maxSize = Math.min(viewportWidth, viewportHeight) * 0.4; // 40% of viewport
+    const hexSize = maxSize * 0.8; // Slightly smaller for gaps
+    const horizontalSpacing = hexSize * 0.75;
+    const verticalSpacing = hexSize * 0.866; // height = width * sin(60°)
 
-    // Calculate grid dimensions
     const columns = Math.floor(viewportWidth / horizontalSpacing);
     const rows = Math.ceil(validImages.length / columns);
 
@@ -122,13 +104,11 @@ class MosaicGenerator {
           position: 'absolute',
           left: `${x}px`,
           top: `${y}px`,
-          width: `${hexWidth}px`,
-          height: `${hexHeight}px`,
+          width: `${hexSize}px`,
+          height: `${hexSize}px`,
           clipPath: 'polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%)',
-          transition: 'transform 0.3s ease',
-          zIndex: isOddRow ? 1 : 0
-        },
-        isHoneycomb: true
+          transition: 'all 0.3s ease'
+        }
       };
     });
   }

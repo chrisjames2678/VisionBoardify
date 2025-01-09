@@ -12,20 +12,8 @@ body {
   height: 100vh;
   padding: 16px;
   box-sizing: border-box;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 16px;
-  align-content: flex-start;
   overflow: auto;
-}
-
-.mosaic-row {
-  display: flex;
-  width: 100%;
-  gap: 16px;
-  justify-content: center;
-  align-items: center;
-  min-height: 200px; /* From original */
+  position: relative;
 }
 
 .image-tile {
@@ -35,7 +23,6 @@ body {
   overflow: hidden;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   transition: all 0.3s ease;
-  min-width: 0; /* Prevents flex items from overflowing */
 }
 
 .image-tile img {
@@ -45,24 +32,53 @@ body {
   display: block;
 }
 
-.image-tile.honeycomb {
-  position: absolute;
-  border-radius: 0;
-  overflow: hidden;
-  background: white;
+.image-tile:hover {
+  transform: scale(1.02);
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  z-index: 10;
+}
+
+.image-tile.honeycomb {
+  border-radius: 0;
+  transition: all 0.3s ease;
 }
 
 .image-tile.honeycomb:hover {
   transform: scale(1.05);
-  z-index: 10;
 }
 
-.image-tile:hover {
-  transform: scale(1.02);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+/* Pattern switcher */
+.pattern-switcher {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 100;
+  display: flex;
+  gap: 8px;
 }
 
+.pattern-button {
+  padding: 8px 16px;
+  border-radius: 20px;
+  border: none;
+  background: white;
+  color: #333;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s ease;
+}
+
+.pattern-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.pattern-button.active {
+  background: #333;
+  color: white;
+}
 
 /* Settings button */
 .settings-button {
@@ -89,67 +105,45 @@ body {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
-/* Pattern switcher */
-.pattern-switcher {
-  position: fixed;
-  top: 20px;
-  right: 20px;
-  z-index: 100;
-}
-
-.pattern-button {
-  padding: 8px 16px;
-  margin-left: 8px;
-  border-radius: 16px;
-  border: none;
-  background: white;
-  color: #333;
-  font-size: 12px;
-  cursor: pointer;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  transition: all 0.2s ease;
-}
-
-.pattern-button:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-}
-
-.pattern-button.active {
-  background: #333;
-  color: white;
-}
-
 /* Responsive adjustments */
 @media (max-width: 768px) {
   #mosaic-container {
     padding: 8px;
-    gap: 8px;
   }
 
-  .mosaic-row {
-    gap: 8px;
+  .pattern-switcher {
+    top: 12px;
+    right: 12px;
+  }
+
+  .pattern-button {
+    padding: 6px 12px;
+    font-size: 12px;
   }
 }
 
 @media (max-width: 480px) {
   #mosaic-container {
     padding: 4px;
-    gap: 4px;
   }
 
-  .mosaic-row {
-    gap: 4px;
-    min-height: 100px;
+  .pattern-switcher {
+    top: 8px;
+    right: 8px;
+  }
+
+  .pattern-button {
+    padding: 4px 8px;
+    font-size: 11px;
   }
 
   .settings-button {
-    bottom: 16px;
-    right: 16px;
+    bottom: 12px;
+    right: 12px;
   }
 
   #openOptions {
-    padding: 10px 20px;
+    padding: 8px 16px;
     font-size: 12px;
   }
 }
