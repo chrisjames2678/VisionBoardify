@@ -17,107 +17,67 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   });
 
-  async function generateAndDisplayMosaic() {
-    console.log('Starting mosaic generation...');
-
-    let images;
-    if (typeof chrome !== 'undefined' && chrome.runtime) {
-      images = await StorageManager.getImages();
-    } else {
-      // Development mode: use test images
-      images = Array(10).fill('https://picsum.photos/800/600');
-    }
-
-    console.log('Retrieved', images.length, 'images');
-
-    if (images.length === 0) {
-      container.innerHTML = `
-        <div style="text-align: center; padding-top: 40vh; color: #666;">
-          <p>No images added yet.</p>
-          <p>Click the settings button to configure your vision board.</p>
-        </div>`;
-      return;
-    }
-
+  async function displayMosaic() {
     try {
-      // Create new canvas for the mosaic
-      const canvas = document.createElement('canvas');
-      canvas.width = window.innerWidth * window.devicePixelRatio;
-      canvas.height = window.innerHeight * window.devicePixelRatio;
-      canvas.style.width = '100%';
-      canvas.style.height = '100%';
-
-      // Generate new mosaic
-      console.log('Starting mosaic generation with canvas size:', canvas.width, 'x', canvas.height);
-      const mosaic = await MosaicGenerator.generate(images);
-
-      // Fade out current content
-      container.style.opacity = '0';
-
-      // Wait for fade out
-      await new Promise(resolve => setTimeout(resolve, 500));
-
-      // Clear and add new canvas
-      container.innerHTML = '';
-      container.appendChild(canvas);
-
-      // Draw mosaic and fade in
-      const ctx = canvas.getContext('2d');
-      ctx.putImageData(mosaic, 0, 0);
-      console.log('Mosaic rendered successfully');
-
-      // Cache the mosaic if in extension mode
+      // Get images
+      let images;
       if (typeof chrome !== 'undefined' && chrome.runtime) {
-        chrome.runtime.sendMessage({
-          type: 'SET_CACHED_MOSAIC',
-          mosaic: canvas.toDataURL()
-        });
+        images = await StorageManager.getImages();
+      } else {
+        // Development mode: use local test images
+        images = [
+          'attached_assets/Screenshot 2025-01-09 at 19.56.05.png',
+          'attached_assets/Screenshot 2025-01-09 at 20.09.35.png',
+          'attached_assets/Screenshot 2025-01-09 at 20.21.22.png',
+          'attached_assets/Screenshot 2025-01-09 at 20.36.33.png'
+        ];
       }
 
-      // Fade in new mosaic
-      container.style.opacity = '1';
+      // Show message if no images
+      if (!images.length) {
+        container.innerHTML = `
+          <div style="text-align: center; padding-top: 40vh; color: #666;">
+            <p>No images added yet.</p>
+            <p>Click the settings button to configure your vision board.</p>
+          </div>`;
+        return;
+      }
+
+      // Process images through MosaicGenerator
+      const processedImages = await MosaicGenerator.generate(images);
+
+      // Clear container and create image grid
+      container.innerHTML = '';
+      processedImages.forEach((img, index) => {
+        const tile = document.createElement('div');
+        tile.className = 'image-tile';
+
+        const imgElement = document.createElement('img');
+        imgElement.src = img.src;
+        imgElement.alt = `Vision ${index + 1}`;
+        imgElement.loading = 'lazy';
+
+        tile.appendChild(imgElement);
+        container.appendChild(tile);
+      });
+
     } catch (error) {
-      console.error('Error generating mosaic:', error);
+      console.error('Error displaying mosaic:', error);
       container.innerHTML = `
         <div style="text-align: center; padding-top: 40vh; color: #666;">
-          <p>Error generating mosaic. Please try refreshing the page.</p>
-          <p>Error details: ${error.message}</p>
+          <p>Error displaying vision board.</p>
+          <p>Please try refreshing the page.</p>
         </div>`;
     }
   }
 
-  // Generate initial mosaic
-  generateAndDisplayMosaic();
+  // Display initial mosaic
+  await displayMosaic();
 
-  // Regenerate on window resize (with debounce)
+  // Handle window resize
   let resizeTimeout;
   window.addEventListener('resize', () => {
     clearTimeout(resizeTimeout);
-    resizeTimeout = setTimeout(() => {
-      console.log('Window resized, regenerating mosaic...');
-      generateAndDisplayMosaic();
-    }, 250);
+    resizeTimeout = setTimeout(displayMosaic, 250);
   });
-
-  // Load cached mosaic while generating new one (if in extension mode)
-  if (typeof chrome !== 'undefined' && chrome.runtime) {
-    try {
-      chrome.runtime.sendMessage({ type: 'GET_CACHED_MOSAIC' }, response => {
-        if (response && response.mosaic) {
-          const img = new Image();
-          img.onload = () => {
-            const tempCanvas = document.createElement('canvas');
-            tempCanvas.width = window.innerWidth;
-            tempCanvas.height = window.innerHeight;
-            const ctx = tempCanvas.getContext('2d');
-            ctx.drawImage(img, 0, 0, tempCanvas.width, tempCanvas.height);
-            container.appendChild(tempCanvas);
-          };
-          img.src = response.mosaic;
-        }
-      });
-    } catch (error) {
-      console.error('Error loading cached mosaic:', error);
-    }
-  }
 });
