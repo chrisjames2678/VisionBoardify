@@ -3,14 +3,6 @@ class MosaicGenerator {
     try {
       console.log('Processing', images.length, 'images for mosaic');
 
-      // Calculate viewport constraints
-      const viewportWidth = window.innerWidth - 32; // Account for padding
-      const viewportHeight = window.innerHeight - 32;
-
-      // Maximum size constraints (30% of viewport for better distribution)
-      const maxImageWidth = viewportWidth * 0.3;
-      const maxImageHeight = viewportHeight * 0.3;
-
       // Load and validate images
       const loadedImages = await Promise.all(
         images.map(async (src, index) => {
@@ -43,34 +35,17 @@ class MosaicGenerator {
         throw new Error('No valid images to display');
       }
 
-      // Sort images by aspect ratio for better grouping
-      validImages.sort((a, b) => Math.abs(1 - a.aspectRatio) - Math.abs(1 - b.aspectRatio));
-
-      // Calculate optimal width for consistent sizing
-      const avgAspectRatio = validImages.reduce((sum, img) => sum + img.aspectRatio, 0) / validImages.length;
-      const baseWidth = Math.min(maxImageWidth, viewportWidth * 0.25); // 25% of viewport width
-      const baseHeight = baseWidth / avgAspectRatio;
-
-      return validImages.map(img => {
-        // Calculate dimensions while maintaining aspect ratio
-        let width = baseWidth;
-        let height = baseWidth / img.aspectRatio;
-
-        // Adjust if height exceeds maximum
-        if (height > maxImageHeight) {
-          height = maxImageHeight;
-          width = height * img.aspectRatio;
-        }
-
+      // Return processed images with grid layout styling
+      return validImages.map((img) => {
         return {
           ...img,
           style: {
-            width: `${width}px`,
-            height: `${height}px`,
-            margin: '8px',
-            flexGrow: '0',
-            flexShrink: '0',
-            position: 'relative'
+            gridRow: 'span 1',
+            gridColumn: 'span 1',
+            width: '100%',
+            height: '100%',
+            position: 'relative',
+            transition: 'transform 0.3s ease'
           }
         };
       });
