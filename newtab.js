@@ -21,23 +21,53 @@ document.addEventListener('DOMContentLoaded', async () => {
 
       container.innerHTML = '';
 
-      images.forEach((imageUrl) => {
-        const itemDiv = document.createElement('div');
-        itemDiv.className = 'item';
+      // Load images and determine their natural dimensions
+      const loadImage = (url) => {
+        return new Promise((resolve, reject) => {
+          const img = new Image();
+          img.onload = () => {
+            const aspectRatio = img.width / img.height;
+            resolve({ img, aspectRatio });
+          };
+          img.onerror = () => reject(new Error(`Failed to load image: ${url}`));
+          img.src = url;
+        });
+      };
 
-        const img = document.createElement('img');
-        img.src = imageUrl;
-        img.loading = 'lazy';
+      // Process images in parallel
+      const imagePromises = images.map(async (imageUrl) => {
+        try {
+          const { img, aspectRatio } = await loadImage(imageUrl);
+          const itemDiv = document.createElement('div');
+          itemDiv.className = 'item';
 
-        // Add error handling for images
-        img.onerror = () => {
-          img.style.display = 'none';
-          itemDiv.style.display = 'none';
-        };
+          // Add 'wide' class for images with large aspect ratios
+          if (aspectRatio > 1.5) {
+            itemDiv.classList.add('wide');
+          }
 
-        itemDiv.appendChild(img);
-        container.appendChild(itemDiv);
+          const imgElement = document.createElement('img');
+          imgElement.src = imageUrl;
+          imgElement.loading = 'lazy';
+
+          // Add error handling for images
+          imgElement.onerror = () => {
+            itemDiv.style.display = 'none';
+          };
+
+          itemDiv.appendChild(imgElement);
+          return itemDiv;
+        } catch (error) {
+          console.error('Error loading image:', error);
+          return null;
+        }
       });
+
+      // Add all successfully loaded images to the container
+      const loadedImages = await Promise.all(imagePromises);
+      loadedImages
+        .filter(item => item !== null)
+        .forEach(item => container.appendChild(item));
 
     } catch (error) {
       console.error('Error displaying images:', error);
