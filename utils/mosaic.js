@@ -34,13 +34,12 @@ class MosaicGenerator {
         throw new Error('No valid images to display');
       }
 
-      // Return simple image objects with maintained aspect ratios
+      // Return simple image objects with basic styling
       return validImages.map(img => ({
         src: img.src,
         style: {
           width: '100%',
-          height: 'auto',
-          aspectRatio: `${img.width} / ${img.height}`
+          height: 'auto'
         }
       }));
 

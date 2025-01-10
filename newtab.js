@@ -4,79 +4,60 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // Handle options button click
   openOptionsButton.addEventListener('click', () => {
-    if (typeof chrome !== 'undefined' && chrome.runtime) {
+    if (chrome.runtime && chrome.runtime.openOptionsPage) {
       chrome.runtime.openOptionsPage();
-    } else {
-      console.log('Running in development mode - options page not available');
     }
   });
 
-  async function displayMosaic() {
+  async function displayImages() {
     try {
-      // Get images
-      let images;
-      if (typeof chrome !== 'undefined' && chrome.runtime) {
-        images = await StorageManager.getImages();
-      } else {
-        // Development mode: use test images
-        images = [
-          encodeURI('attached_assets/Screenshot 2025-01-09 at 19.56.05.png'),
-          encodeURI('attached_assets/Screenshot 2025-01-09 at 20.09.35.png'),
-          encodeURI('attached_assets/Screenshot 2025-01-09 at 20.21.22.png'),
-          encodeURI('attached_assets/Screenshot 2025-01-09 at 20.36.33.png'),
-          encodeURI('attached_assets/Screenshot 2025-01-09 at 20.54.44.png'),
-          encodeURI('attached_assets/Screenshot 2025-01-09 at 21.11.59.png')
-        ];
-      }
+      // Get images from storage
+      const images = await StorageManager.getImages();
 
       // Show message if no images
-      if (!images || !images.length) {
+      if (!images || images.length === 0) {
         container.innerHTML = `
-          <div style="text-align: center; padding-top: 40vh; color: #666;">
+          <div style="text-align: center; padding: 40px; color: #666;">
             <p>No images added yet.</p>
-            <p>Click the settings button to configure your vision board.</p>
+            <p>Click the ⚙️ button to configure your vision board.</p>
           </div>`;
         return;
       }
 
-      // Process images
-      const processedImages = await MosaicGenerator.generate(images);
-
       // Clear container
       container.innerHTML = '';
 
-      // Display images in grid layout with consistent spacing
-      processedImages.forEach((img, index) => {
+      // Create image tiles with clean layout
+      images.forEach((imageUrl, index) => {
         const tile = document.createElement('div');
         tile.className = 'image-tile';
-        Object.assign(tile.style, img.style);
 
-        const imgElement = document.createElement('img');
-        imgElement.src = img.src;
-        imgElement.alt = `Vision ${index + 1}`;
-        imgElement.loading = 'lazy';
+        const img = document.createElement('img');
+        img.src = imageUrl;
+        img.alt = `Vision board image ${index + 1}`;
+        img.loading = 'lazy';
 
-        tile.appendChild(imgElement);
+        tile.appendChild(img);
         container.appendChild(tile);
       });
 
     } catch (error) {
-      console.error('Error displaying mosaic:', error);
+      console.error('Error displaying images:', error);
       container.innerHTML = `
-        <div style="text-align: center; padding-top: 40vh; color: #666;">
-          <p>Error displaying vision board.</p>
+        <div style="text-align: center; padding: 40px; color: #666;">
+          <p>Error loading images.</p>
           <p>Please try refreshing the page.</p>
         </div>`;
     }
   }
 
-  // Display initial mosaic
-  await displayMosaic();
+  // Display initial images
+  await displayImages();
 
-  // Handle window resize with debouncing
+  // Handle window resize
   let resizeTimeout;
   window.addEventListener('resize', () => {
     clearTimeout(resizeTimeout);
-    resizeTimeout = setTimeout(displayMosaic, 250);
+    resizeTimeout = setTimeout(displayImages, 250);
   });
 });

@@ -6,55 +6,54 @@ body {
 }
 
 #mosaic-container {
-  /* Page border through padding */
-  padding: 2rem;
-  max-width: 1800px;
+  /* Fixed page border */
+  padding: 32px;
   margin: 0 auto;
+  max-width: 1600px;
+  box-sizing: border-box;
 
-  /* Grid layout */
+  /* Basic grid layout */
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 1.5rem;
-  box-sizing: border-box;
+  gap: 24px;
 }
 
 .image-tile {
-  /* Individual image container */
+  /* Clean individual image container */
   background: white;
-  border: 1px solid #e0e0e0;
+  border: 1px solid #ddd;
   border-radius: 8px;
-  padding: 1rem;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 16px;
+  overflow: hidden;
+  aspect-ratio: 1;
 }
 
 .image-tile img {
-  /* Image styling */
+  /* Maintain aspect ratio */
   width: 100%;
-  height: auto;
+  height: 100%;
+  object-fit: contain;
   display: block;
-  border-radius: 4px;
 }
 
 .settings-button {
   position: fixed;
-  bottom: 20px;
-  right: 20px;
+  bottom: 24px;
+  right: 24px;
   z-index: 100;
 }
 
 #openOptions {
   padding: 12px 24px;
   background: white;
-  border: none;
+  border: 1px solid #ddd;
   border-radius: 24px;
-  color: #333;
-  font-size: 14px;
   cursor: pointer;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  font-size: 14px;
 }
 
-/* Responsive breakpoints */
-@media (min-width: 2000px) {
+/* Responsive adjustments */
+@media (min-width: 1920px) {
   #mosaic-container {
     grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
   }
@@ -62,26 +61,33 @@ body {
 
 @media (max-width: 768px) {
   #mosaic-container {
-    padding: 1rem;
+    padding: 24px;
     grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-    gap: 1rem;
+    gap: 20px;
+  }
+
+  .image-tile {
+    padding: 12px;
   }
 }
 
 @media (max-width: 480px) {
   #mosaic-container {
-    padding: 0.75rem;
+    padding: 16px;
     grid-template-columns: 1fr;
-    gap: 0.75rem;
+    gap: 16px;
+  }
+
+  .image-tile {
+    padding: 10px;
   }
 
   .settings-button {
-    bottom: 12px;
-    right: 12px;
+    bottom: 16px;
+    right: 16px;
   }
 
   #openOptions {
-    padding: 8px 16px;
-    font-size: 12px;
+    padding: 10px 20px;
   }
 }
