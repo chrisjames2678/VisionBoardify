@@ -27,11 +27,8 @@ document.addEventListener('DOMContentLoaded', async () => {
       // Clear container
       container.innerHTML = '';
 
-      // Create image tiles with clean layout
+      // Create image elements directly without tiles
       images.forEach((imageUrl, index) => {
-        const tile = document.createElement('div');
-        tile.className = 'image-tile';
-
         const img = document.createElement('img');
         img.src = imageUrl;
         img.alt = `Vision board image ${index + 1}`;
@@ -43,8 +40,7 @@ document.addEventListener('DOMContentLoaded', async () => {
           img.alt = 'Failed to load image';
         };
 
-        tile.appendChild(img);
-        container.appendChild(tile);
+        container.appendChild(img);
       });
 
     } catch (error) {
