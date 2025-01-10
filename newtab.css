@@ -12,13 +12,13 @@ body {
   width: 100%;
   justify-content: flex-start;
   align-items: flex-start;
-  gap: 2px;
+  gap: 4px;
 }
 
 .item {
-  flex: 1 0 250px;
-  max-width: calc(25% - 4px);
-  min-width: 200px;
+  flex: 1 1 300px;
+  max-width: calc(33.333% - 4px);
+  min-width: 250px;
   position: relative;
   overflow: hidden;
   aspect-ratio: 1;
@@ -37,16 +37,23 @@ body {
 }
 
 /* Responsive adjustments */
+@media screen and (min-width: 1400px) {
+  .item {
+    flex-basis: 350px;
+    max-width: calc(25% - 4px);
+  }
+}
+
 @media screen and (max-width: 1200px) {
   .item {
-    flex-basis: 200px;
+    flex-basis: 280px;
     max-width: calc(33.333% - 4px);
   }
 }
 
 @media screen and (max-width: 800px) {
   .item {
-    flex-basis: 150px;
+    flex-basis: 250px;
     max-width: calc(50% - 4px);
   }
 }
@@ -55,7 +62,7 @@ body {
   .item {
     flex-basis: 100%;
     max-width: 100%;
-    min-width: 150px;
+    min-width: 200px;
   }
 }
 
