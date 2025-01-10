@@ -7,13 +7,39 @@ class StorageManager {
     });
   }
 
-  static async addImage(imageData) {
+  static async addImage(imageData, caption = '') {
     const images = await this.getImages();
-    images.push(imageData);
+    const imageEntry = {
+      url: imageData,
+      caption: caption,
+      timestamp: new Date().toISOString()
+    };
+    images.push(imageEntry);
 
     return new Promise((resolve) => {
       chrome.storage.local.set({ images }, resolve);
     });
+  }
+
+  static async updateImageCaption(index, caption) {
+    const images = await this.getImages();
+    if (images[index]) {
+      if (typeof images[index] === 'string') {
+        // Convert old format to new format
+        images[index] = {
+          url: images[index],
+          caption: caption,
+          timestamp: new Date().toISOString()
+        };
+      } else {
+        // Update existing caption
+        images[index].caption = caption;
+      }
+      return new Promise((resolve) => {
+        chrome.storage.local.set({ images }, resolve);
+      });
+    }
+    return Promise.reject(new Error('Image not found'));
   }
 
   static async removeImage(index) {

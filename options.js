@@ -23,7 +23,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       div.className = 'image-item';
 
       const img = document.createElement('img');
-      img.src = imageData;
+      img.src = typeof imageData === 'string' ? imageData : imageData.url;
       img.alt = `Vision board image ${index + 1}`;
       img.onerror = () => {
         img.src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><rect width="100" height="100" fill="%23ddd"/><text x="50%" y="50%" text-anchor="middle" fill="%23666">Error</text></svg>';
@@ -40,8 +40,29 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
       };
 
+      // Add caption input
+      const captionInput = document.createElement('input');
+      captionInput.type = 'text';
+      captionInput.className = 'caption-input';
+      captionInput.placeholder = 'Add a caption...';
+      captionInput.value = typeof imageData === 'string' ? '' : (imageData.caption || '');
+
+      // Handle caption updates with debounce
+      let timeout;
+      captionInput.addEventListener('input', (e) => {
+        clearTimeout(timeout);
+        timeout = setTimeout(async () => {
+          try {
+            await StorageManager.updateImageCaption(index, e.target.value);
+          } catch (error) {
+            console.error('Error updating caption:', error);
+          }
+        }, 500); // Wait 500ms after user stops typing
+      });
+
       div.appendChild(img);
       div.appendChild(deleteBtn);
+      div.appendChild(captionInput);
       imagesGrid.appendChild(div);
     });
   }

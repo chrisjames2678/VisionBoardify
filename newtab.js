@@ -22,21 +22,32 @@ document.addEventListener('DOMContentLoaded', async () => {
       container.innerHTML = '';
 
       // Process images in parallel
-      const imagePromises = images.map(async (imageUrl) => {
+      const imagePromises = images.map(async (imageData) => {
         try {
           const itemDiv = document.createElement('div');
           itemDiv.className = 'item';
 
           const imgElement = document.createElement('img');
-          imgElement.src = imageUrl;
+          imgElement.src = typeof imageData === 'string' ? imageData : imageData.url;
           imgElement.loading = 'lazy';
+
+          // Create caption overlay
+          const captionOverlay = document.createElement('div');
+          captionOverlay.className = 'caption-overlay';
+
+          // Create caption text
+          const captionText = document.createElement('div');
+          captionText.className = 'caption-text';
+          captionText.textContent = typeof imageData === 'string' ? 'Add a caption in settings' : (imageData.caption || 'Add a caption in settings');
 
           // Add error handling for images
           imgElement.onerror = () => {
             itemDiv.style.display = 'none';
           };
 
+          captionOverlay.appendChild(captionText);
           itemDiv.appendChild(imgElement);
+          itemDiv.appendChild(captionOverlay);
           return itemDiv;
         } catch (error) {
           console.error('Error loading image:', error);
