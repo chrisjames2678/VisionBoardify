@@ -10,13 +10,14 @@ body {
 #mosaic-container {
   width: 100%;
   height: 100vh;
-  padding: 16px;
+  padding: 20px;
   box-sizing: border-box;
   overflow: auto;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 16px;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 20px;
   align-items: start;
+  justify-content: center;
 }
 
 .image-tile {
@@ -38,7 +39,7 @@ body {
 }
 
 .image-tile:hover {
-  transform: scale(1.03);
+  transform: scale(1.05);
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
   z-index: 10;
 }
@@ -68,69 +69,36 @@ body {
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
 }
 
-/* Layout selector styling */
-.layout-select {
-  padding: 8px 16px;
-  border-radius: 24px;
-  border: none;
-  background: white;
-  color: #333;
-  font-size: 14px;
-  margin-right: 10px;
-  cursor: pointer;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  transition: all 0.2s ease;
-}
-
-.layout-select:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-}
-
-/* Layout specific styles */
-.grid {
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 16px;
-}
-
-.masonry {
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  grid-auto-rows: 10px;
-  grid-auto-flow: dense;
-}
-
-.spiral {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  align-items: center;
-}
-
-.spiral .image-tile {
-  position: absolute;
-  transition: all 0.5s ease;
-}
-
-/* Responsive adjustments */
-@media (max-width: 1200px) {
+/* Optimized responsive breakpoints */
+@media (min-width: 2560px) {
   #mosaic-container {
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+    gap: 30px;
+    padding: 30px;
+  }
+}
+
+@media (max-width: 1440px) {
+  #mosaic-container {
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 16px;
+    padding: 16px;
   }
 }
 
 @media (max-width: 768px) {
   #mosaic-container {
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    padding: 12px;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
     gap: 12px;
+    padding: 12px;
   }
 }
 
 @media (max-width: 480px) {
   #mosaic-container {
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-    padding: 8px;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
     gap: 8px;
+    padding: 8px;
   }
 
   .settings-button {
