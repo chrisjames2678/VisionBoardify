@@ -2,7 +2,19 @@ class StorageManager {
   static async getImages() {
     return new Promise((resolve) => {
       chrome.storage.local.get(['images'], function(result) {
-        resolve(result.images || []);
+        const images = result.images || [];
+        // Normalize image format
+        const normalizedImages = images.map(image => {
+          if (typeof image === 'string') {
+            return {
+              url: image,
+              caption: '',
+              timestamp: new Date().toISOString()
+            };
+          }
+          return image;
+        });
+        resolve(normalizedImages);
       });
     });
   }
