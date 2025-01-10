@@ -1,5 +1,11 @@
 document.addEventListener('DOMContentLoaded', async () => {
   const container = document.getElementById('mosaic-container');
+  const configButton = document.getElementById('configButton');
+
+  // Add click handler for config button
+  configButton.addEventListener('click', () => {
+    chrome.runtime.openOptionsPage();
+  });
 
   async function displayImages() {
     try {

@@ -10,15 +10,18 @@ body {
   margin: 0;
   padding: 0;
   width: 100%;
+  justify-content: flex-start;
+  align-items: flex-start;
+  gap: 2px;
 }
 
 .item {
-  width: 300px;
-  margin: 0;
-  padding: 0;
+  flex: 1 0 250px;
+  max-width: calc(25% - 4px);
+  min-width: 200px;
   position: relative;
   overflow: hidden;
-  flex-grow: 1;
+  aspect-ratio: 1;
 }
 
 .item img {
@@ -33,21 +36,56 @@ body {
   transform: scale(1.05);
 }
 
-/* Ensure images maintain good sizes on different screens */
+/* Responsive adjustments */
 @media screen and (max-width: 1200px) {
   .item {
-    width: 250px;
+    flex-basis: 200px;
+    max-width: calc(33.333% - 4px);
   }
 }
 
 @media screen and (max-width: 800px) {
   .item {
-    width: 200px;
+    flex-basis: 150px;
+    max-width: calc(50% - 4px);
   }
 }
 
 @media screen and (max-width: 500px) {
   .item {
-    width: 150px;
+    flex-basis: 100%;
+    max-width: 100%;
+    min-width: 150px;
   }
+}
+
+.config-button {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.7);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  color: white;
+  font-size: 24px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  z-index: 1000;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(5px);
+}
+
+.config-button:hover {
+  background: rgba(0, 0, 0, 0.9);
+  border-color: rgba(255, 255, 255, 0.5);
+  transform: scale(1.1);
+}
+
+.config-button:active {
+  transform: scale(0.95);
 }
