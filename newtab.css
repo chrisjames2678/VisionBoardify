@@ -14,8 +14,8 @@ body {
   box-sizing: border-box;
   overflow: auto;
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 20px;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 24px;
   align-items: start;
   justify-content: center;
 }
@@ -26,9 +26,10 @@ body {
   border-radius: 12px;
   overflow: hidden;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  transition: all 0.3s ease;
+  transition: box-shadow 0.3s ease;
   aspect-ratio: 1;
   width: 100%;
+  margin: 0;
 }
 
 .image-tile img {
@@ -39,9 +40,7 @@ body {
 }
 
 .image-tile:hover {
-  transform: scale(1.05);
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
-  z-index: 10;
 }
 
 /* Settings button */
@@ -72,33 +71,33 @@ body {
 /* Optimized responsive breakpoints */
 @media (min-width: 2560px) {
   #mosaic-container {
-    grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
-    gap: 30px;
-    padding: 30px;
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    gap: 32px;
+    padding: 32px;
   }
 }
 
 @media (max-width: 1440px) {
   #mosaic-container {
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-    gap: 16px;
-    padding: 16px;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+    padding: 20px;
   }
 }
 
 @media (max-width: 768px) {
   #mosaic-container {
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    gap: 12px;
-    padding: 12px;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+    padding: 16px;
   }
 }
 
 @media (max-width: 480px) {
   #mosaic-container {
-    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-    gap: 8px;
-    padding: 8px;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 12px;
+    padding: 12px;
   }
 
   .settings-button {

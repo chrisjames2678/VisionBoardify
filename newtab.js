@@ -45,7 +45,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       // Clear container
       container.innerHTML = '';
 
-      // Display images in grid layout
+      // Display images in grid layout with consistent spacing
       processedImages.forEach((img, index) => {
         const tile = document.createElement('div');
         tile.className = 'image-tile';
@@ -73,7 +73,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   // Display initial mosaic
   await displayMosaic();
 
-  // Handle window resize
+  // Handle window resize with debouncing
   let resizeTimeout;
   window.addEventListener('resize', () => {
     clearTimeout(resizeTimeout);
