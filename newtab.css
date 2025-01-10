@@ -1,49 +1,40 @@
 body {
   margin: 0;
   padding: 0;
-  width: 100vw;
-  height: 100vh;
   background: #f5f5f5;
-  overflow: hidden;
+  min-height: 100vh;
 }
 
 #mosaic-container {
-  width: 100%;
-  height: 100vh;
-  padding: 20px;
-  box-sizing: border-box;
-  overflow: auto;
+  /* Page border through padding */
+  padding: 2rem;
+  max-width: 1800px;
+  margin: 0 auto;
+
+  /* Grid layout */
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 24px;
-  align-items: start;
-  justify-content: center;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.5rem;
+  box-sizing: border-box;
 }
 
 .image-tile {
-  position: relative;
+  /* Individual image container */
   background: white;
-  border-radius: 12px;
-  overflow: hidden;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  transition: box-shadow 0.3s ease;
-  aspect-ratio: 1;
-  width: 100%;
-  margin: 0;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 1rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .image-tile img {
+  /* Image styling */
   width: 100%;
-  height: 100%;
-  object-fit: cover;
+  height: auto;
   display: block;
+  border-radius: 4px;
 }
 
-.image-tile:hover {
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
-}
-
-/* Settings button */
 .settings-button {
   position: fixed;
   bottom: 20px;
@@ -53,51 +44,35 @@ body {
 
 #openOptions {
   padding: 12px 24px;
-  border-radius: 24px;
-  border: none;
   background: white;
+  border: none;
+  border-radius: 24px;
   color: #333;
   font-size: 14px;
   cursor: pointer;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  transition: all 0.2s ease;
 }
 
-#openOptions:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-}
-
-/* Optimized responsive breakpoints */
-@media (min-width: 2560px) {
+/* Responsive breakpoints */
+@media (min-width: 2000px) {
   #mosaic-container {
-    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-    gap: 32px;
-    padding: 32px;
-  }
-}
-
-@media (max-width: 1440px) {
-  #mosaic-container {
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 20px;
-    padding: 20px;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
   }
 }
 
 @media (max-width: 768px) {
   #mosaic-container {
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 16px;
-    padding: 16px;
+    padding: 1rem;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 1rem;
   }
 }
 
 @media (max-width: 480px) {
   #mosaic-container {
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-    gap: 12px;
-    padding: 12px;
+    padding: 0.75rem;
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
   }
 
   .settings-button {

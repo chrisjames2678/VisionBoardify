@@ -14,7 +14,6 @@ class MosaicGenerator {
                 src,
                 width: img.width,
                 height: img.height,
-                aspectRatio: img.width / img.height,
                 index
               });
               img.onerror = () => reject(new Error(`Failed to load image ${index + 1}`));
@@ -35,32 +34,16 @@ class MosaicGenerator {
         throw new Error('No valid images to display');
       }
 
-      // Sort images by aspect ratio for better grouping
-      validImages.sort((a, b) => a.aspectRatio - b.aspectRatio);
+      // Return simple image objects with maintained aspect ratios
+      return validImages.map(img => ({
+        src: img.src,
+        style: {
+          width: '100%',
+          height: 'auto',
+          aspectRatio: `${img.width} / ${img.height}`
+        }
+      }));
 
-      // Calculate optimal row height based on viewport
-      const viewportHeight = window.innerHeight;
-      const optimalRows = Math.ceil(Math.sqrt(validImages.length));
-      const baseRowHeight = Math.floor(viewportHeight / (optimalRows + 1));
-
-      // Process images for grid layout
-      return validImages.map((img) => {
-        const isWide = img.aspectRatio > 1.5;
-
-        return {
-          ...img,
-          style: {
-            gridRow: 'span 1',
-            gridColumn: isWide ? 'span 2' : 'span 1',
-            width: '100%',
-            height: '100%',
-            position: 'relative',
-            transition: 'transform 0.3s ease',
-            objectFit: 'cover',
-            aspectRatio: img.aspectRatio
-          }
-        };
-      });
     } catch (error) {
       console.error('Error in image processing:', error);
       throw error;
