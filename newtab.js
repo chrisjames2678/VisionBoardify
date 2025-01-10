@@ -21,30 +21,11 @@ document.addEventListener('DOMContentLoaded', async () => {
 
       container.innerHTML = '';
 
-      // Load images and determine their natural dimensions
-      const loadImage = (url) => {
-        return new Promise((resolve, reject) => {
-          const img = new Image();
-          img.onload = () => {
-            const aspectRatio = img.width / img.height;
-            resolve({ img, aspectRatio });
-          };
-          img.onerror = () => reject(new Error(`Failed to load image: ${url}`));
-          img.src = url;
-        });
-      };
-
       // Process images in parallel
       const imagePromises = images.map(async (imageUrl) => {
         try {
-          const { img, aspectRatio } = await loadImage(imageUrl);
           const itemDiv = document.createElement('div');
           itemDiv.className = 'item';
-
-          // Add 'wide' class for images with large aspect ratios
-          if (aspectRatio > 1.5) {
-            itemDiv.classList.add('wide');
-          }
 
           const imgElement = document.createElement('img');
           imgElement.src = imageUrl;
