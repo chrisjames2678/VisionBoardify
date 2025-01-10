@@ -37,6 +37,12 @@ document.addEventListener('DOMContentLoaded', async () => {
         img.alt = `Vision board image ${index + 1}`;
         img.loading = 'lazy';
 
+        // Handle image load errors
+        img.onerror = () => {
+          img.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="100" height="100"%3E%3Crect width="100" height="100" fill="%23ddd"/%3E%3Ctext x="50%25" y="50%25" text-anchor="middle" fill="%23666"%3EError%3C/text%3E%3C/svg%3E';
+          img.alt = 'Failed to load image';
+        };
+
         tile.appendChild(img);
         container.appendChild(tile);
       });
@@ -54,7 +60,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   // Display initial images
   await displayImages();
 
-  // Handle window resize
+  // Handle window resize with debouncing
   let resizeTimeout;
   window.addEventListener('resize', () => {
     clearTimeout(resizeTimeout);

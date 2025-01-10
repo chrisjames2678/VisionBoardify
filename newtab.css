@@ -21,11 +21,16 @@ body {
 .image-tile {
   /* Clean individual image container */
   background: white;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  padding: 16px;
+  padding: 12px;
   overflow: hidden;
   aspect-ratio: 1;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  transition: transform 0.2s ease;
+}
+
+.image-tile:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 .image-tile img {
@@ -46,40 +51,57 @@ body {
 #openOptions {
   padding: 12px 24px;
   background: white;
-  border: 1px solid #ddd;
+  border: none;
   border-radius: 24px;
   cursor: pointer;
   font-size: 14px;
+  transition: background 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-/* Responsive adjustments */
+#openOptions:hover {
+  background: #f0f0f0;
+}
+
+/* Large screens */
 @media (min-width: 1920px) {
   #mosaic-container {
     grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
   }
 }
 
-@media (max-width: 768px) {
+/* Medium screens */
+@media (max-width: 1200px) {
   #mosaic-container {
-    padding: 24px;
     grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    padding: 24px;
     gap: 20px;
-  }
-
-  .image-tile {
-    padding: 12px;
   }
 }
 
-@media (max-width: 480px) {
+/* Small screens */
+@media (max-width: 768px) {
   #mosaic-container {
-    padding: 16px;
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    padding: 20px;
     gap: 16px;
   }
 
   .image-tile {
     padding: 10px;
+  }
+}
+
+/* Mobile screens */
+@media (max-width: 480px) {
+  #mosaic-container {
+    grid-template-columns: 1fr;
+    padding: 16px;
+    gap: 16px;
+  }
+
+  .image-tile {
+    padding: 8px;
   }
 
   .settings-button {
