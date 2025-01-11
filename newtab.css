@@ -150,6 +150,42 @@ body {
               filter 0.3s ease-out;
 }
 
+.layout-switch {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.7);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  color: white;
+  font-size: 20px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  z-index: 1000;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(5px);
+}
+
+.layout-switch:hover {
+  background: rgba(0, 0, 0, 0.9);
+  border-color: rgba(255, 255, 255, 0.5);
+  transform: scale(1.1);
+}
+
+.layout-switch:active {
+  transform: scale(0.95);
+}
+
+.config-button {
+  bottom: 20px;
+  right: 20px;
+}
+
 /* Responsive adjustments */
 @media screen and (min-width: 1601px) {
   .masonry {

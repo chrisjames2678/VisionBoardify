@@ -1,11 +1,40 @@
 document.addEventListener('DOMContentLoaded', async () => {
   const container = document.getElementById('mosaic-container');
   const configButton = document.getElementById('configButton');
+  const layoutSwitch = document.createElement('button'); // Create layout switch button
+  layoutSwitch.id = 'layoutSwitch';
+  layoutSwitch.textContent = '2x Layout'; // Initial text
+  layoutSwitch.style.position = 'fixed';
+  layoutSwitch.style.top = '10px';
+  layoutSwitch.style.right = '10px'; // Position in top right corner
+  layoutSwitch.style.padding = '8px 16px';
+  layoutSwitch.style.border = 'none';
+  layoutSwitch.style.borderRadius = '4px';
+  layoutSwitch.style.backgroundColor = '#4CAF50'; // Example color - adjust as needed
+  layoutSwitch.style.color = 'white';
+  layoutSwitch.style.cursor = 'pointer';
+  document.body.appendChild(layoutSwitch); // Add button to the page
+
 
   // Add click handler for config button
   configButton.addEventListener('click', () => {
     chrome.runtime.openOptionsPage();
   });
+
+  // Get layout preference (placeholder - needs actual implementation)
+  const getLayout = async () => {
+    // Replace with your actual layout preference retrieval logic
+    return localStorage.getItem('layout') || '1x'; 
+  };
+
+  let currentLayout = await getLayout();
+  layoutSwitch.addEventListener('click', async () => {
+    currentLayout = currentLayout === '1x' ? '2x' : '1x';
+    layoutSwitch.textContent = `${currentLayout} Layout`;
+    localStorage.setItem('layout', currentLayout); //Save layout preference
+    await displayImages(); // Redisplay images with new layout
+  });
+
 
   async function displayImages() {
     try {
