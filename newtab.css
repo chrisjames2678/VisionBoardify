@@ -5,7 +5,7 @@ body {
   min-height: 100vh;
 }
 
-.masonry {
+.masonry, .bento {
   column-count: 4;
   column-gap: 20px;
   padding: 20px;
@@ -188,25 +188,25 @@ body {
 
 /* Responsive adjustments */
 @media screen and (min-width: 1601px) {
-  .masonry {
+  .masonry, .bento {
     column-count: 5;
   }
 }
 
 @media screen and (max-width: 1600px) {
-  .masonry {
+  .masonry, .bento {
     column-count: 4;
   }
 }
 
 @media screen and (max-width: 1200px) {
-  .masonry {
+  .masonry, .bento {
     column-count: 3;
   }
 }
 
 @media screen and (max-width: 800px) {
-  .masonry {
+  .masonry, .bento {
     column-count: 2;
     column-gap: 15px;
     padding: 15px;
@@ -218,7 +218,7 @@ body {
 }
 
 @media screen and (max-width: 500px) {
-  .masonry {
+  .masonry, .bento {
     column-count: 1;
     column-gap: 10px;
     padding: 10px;

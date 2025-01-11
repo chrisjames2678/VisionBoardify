@@ -1,8 +1,6 @@
 document.addEventListener('DOMContentLoaded', async () => {
   const container = document.getElementById('mosaic-container');
   const configButton = document.getElementById('configButton');
-  const layoutSwitch = document.createElement('button'); // Create layout switch button
-  layoutSwitch.id = 'layoutSwitch';
   const layoutSwitch = document.getElementById('layoutSwitch');
 
 
