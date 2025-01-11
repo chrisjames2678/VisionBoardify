@@ -130,12 +130,17 @@ input[type="file"] {
   margin-bottom: 16px;
   background: white;
   border-radius: 8px;
-  overflow: hidden;
+  overflow: visible;
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-bottom: 40px;
 }
 
 .image-item img {
   width: 100%;
   display: block;
-  object-fit: contain;
+  object-fit: cover;
+  border-radius: 8px 8px 0 0;
 }
