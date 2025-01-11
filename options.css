@@ -85,9 +85,9 @@ input[type="file"] {
 }
 
 .caption-input {
-  width: 100%;
+  width: calc(100% - 16px);
   padding: 8px;
-  margin-top: 8px;
+  margin: 8px;
   border: 1px solid #ddd;
   border-radius: 4px;
   font-size: 14px;
@@ -95,6 +95,8 @@ input[type="file"] {
   box-sizing: border-box;
   resize: none;
   background: white;
+  position: relative;
+  z-index: 2;
 }
 
 .caption-input:focus {
@@ -121,4 +123,19 @@ input[type="file"] {
 
 .delete-button:hover {
   background: rgba(255, 0, 0, 0.2);
+}
+
+.image-item {
+  position: relative;
+  margin-bottom: 16px;
+  background: white;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.image-item img {
+  width: 100%;
+  display: block;
+  object-fit: contain;
 }
