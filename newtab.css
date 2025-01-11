@@ -6,9 +6,12 @@ body {
 }
 
 .masonry {
+  display: block;
   column-count: 4;
   column-gap: 20px;
   padding: 20px;
+  opacity: 1;
+  transition: opacity 0.3s ease;
   width: calc(100% - 40px);
   margin: 0 auto;
   max-width: 1600px;

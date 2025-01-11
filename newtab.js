@@ -17,11 +17,17 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   let currentLayout = await getLayout();
   layoutSwitch.addEventListener('click', async () => {
-    currentLayout = currentLayout === 'masonry' ? 'bento' : 'masonry';
-    layoutSwitch.textContent = currentLayout;
-    localStorage.setItem('layout', currentLayout);
-    container.className = currentLayout;
-    await displayImages();
+    container.style.opacity = '0';
+    setTimeout(async () => {
+      currentLayout = currentLayout === 'masonry' ? 'bento' : 'masonry';
+      layoutSwitch.textContent = currentLayout;
+      localStorage.setItem('layout', currentLayout);
+      container.className = currentLayout;
+      await displayImages();
+      setTimeout(() => {
+        container.style.opacity = '1';
+      }, 50);
+    }, 300);
   });
 
   // Set initial layout text
