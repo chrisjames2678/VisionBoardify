@@ -5,7 +5,7 @@ body {
   min-height: 100vh;
 }
 
-.masonry, .bento {
+.masonry {
   column-count: 4;
   column-gap: 20px;
   padding: 20px;
@@ -14,6 +14,27 @@ body {
   max-width: 1600px;
   box-sizing: border-box;
   transition: width 0.3s ease-out;
+}
+
+.bento {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
+  padding: 20px;
+  width: calc(100% - 40px);
+  margin: 0 auto;
+  max-width: 1600px;
+  box-sizing: border-box;
+}
+
+.bento .item {
+  margin-bottom: 0;
+  height: 300px;
+}
+
+.bento .item img {
+  height: 100%;
+  object-fit: cover;
 }
 
 .item {
