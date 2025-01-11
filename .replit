@@ -1,7 +1,6 @@
 modules = ["nodejs-20"]
 
 [workflows]
-runButton = "Project"
 
 [[workflows.workflow]]
 name = "Project"
