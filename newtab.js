@@ -47,7 +47,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       const imagePromises = images.map(async (imageData) => {
         try {
           const itemDiv = document.createElement('div');
-          itemDiv.className = 'item';
+          itemDiv.className = 'item new-item';
 
           const imgElement = document.createElement('img');
           imgElement.src = typeof imageData === 'string' ? imageData : imageData.url;
