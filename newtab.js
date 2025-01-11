@@ -3,17 +3,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   const configButton = document.getElementById('configButton');
   const layoutSwitch = document.createElement('button'); // Create layout switch button
   layoutSwitch.id = 'layoutSwitch';
-  layoutSwitch.textContent = '2x Layout'; // Initial text
-  layoutSwitch.style.position = 'fixed';
-  layoutSwitch.style.top = '10px';
-  layoutSwitch.style.right = '10px'; // Position in top right corner
-  layoutSwitch.style.padding = '8px 16px';
-  layoutSwitch.style.border = 'none';
-  layoutSwitch.style.borderRadius = '4px';
-  layoutSwitch.style.backgroundColor = '#4CAF50'; // Example color - adjust as needed
-  layoutSwitch.style.color = 'white';
-  layoutSwitch.style.cursor = 'pointer';
-  document.body.appendChild(layoutSwitch); // Add button to the page
+  const layoutSwitch = document.getElementById('layoutSwitch');
 
 
   // Add click handler for config button
@@ -29,11 +19,16 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   let currentLayout = await getLayout();
   layoutSwitch.addEventListener('click', async () => {
-    currentLayout = currentLayout === '1x' ? '2x' : '1x';
-    layoutSwitch.textContent = `${currentLayout} Layout`;
-    localStorage.setItem('layout', currentLayout); //Save layout preference
-    await displayImages(); // Redisplay images with new layout
+    currentLayout = currentLayout === 'masonry' ? 'bento' : 'masonry';
+    layoutSwitch.textContent = currentLayout;
+    localStorage.setItem('layout', currentLayout);
+    container.className = currentLayout;
+    await displayImages();
   });
+
+  // Set initial layout text
+  currentLayout = localStorage.getItem('layout') || 'masonry';
+  layoutSwitch.textContent = currentLayout;
 
 
   async function displayImages() {
