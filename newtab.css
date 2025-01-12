@@ -134,8 +134,8 @@ body {
 
 .caption-text[data-size="small"] { font-size: 0.9rem; }
 .caption-text[data-size="medium"] { font-size: 1.1rem; }
-.caption-text[data-size="large"] { font-size: 1.3rem; }
-.caption-text[data-size="xlarge"] { font-size: 1.6rem; }
+.caption-text[data-size="large"] { font-size: 1.5rem; }
+.caption-text[data-size="xlarge"] { font-size: 2.2rem; }
 
 .item:hover .caption-text {
   opacity: 1;
