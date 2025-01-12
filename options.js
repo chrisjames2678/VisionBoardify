@@ -31,7 +31,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   });
 
-  // Save font preferences
+  // Save and apply font preferences
   captionFont.addEventListener('change', (e) => {
     chrome.storage.local.set({ captionFont: e.target.value });
   });
