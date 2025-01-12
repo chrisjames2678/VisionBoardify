@@ -3,6 +3,23 @@ document.addEventListener('DOMContentLoaded', async () => {
   const imagesGrid = document.getElementById('imagesGrid');
   const imageCount = document.getElementById('imageCount');
   const backButton = document.getElementById('backToVisionBoard');
+  const captionFont = document.getElementById('captionFont');
+  const captionSize = document.getElementById('captionSize');
+
+  // Load saved font preferences
+  chrome.storage.local.get(['captionFont', 'captionSize'], function(result) {
+    if (result.captionFont) captionFont.value = result.captionFont;
+    if (result.captionSize) captionSize.value = result.captionSize;
+  });
+
+  // Save font preferences
+  captionFont.addEventListener('change', (e) => {
+    chrome.storage.local.set({ captionFont: e.target.value });
+  });
+
+  captionSize.addEventListener('change', (e) => {
+    chrome.storage.local.set({ captionSize: e.target.value });
+  });
 
   // Handle back button click
   backButton.addEventListener('click', () => {

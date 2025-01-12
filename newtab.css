@@ -127,11 +127,15 @@ body {
   opacity: 0;
   transform: translateY(20px);
   transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-  font-size: 1.1rem;
   line-height: 1.5;
   font-weight: 500;
   text-shadow: 0 2px 4px rgba(0,0,0,0.3);
 }
+
+.caption-text[data-size="small"] { font-size: 0.9rem; }
+.caption-text[data-size="medium"] { font-size: 1.1rem; }
+.caption-text[data-size="large"] { font-size: 1.3rem; }
+.caption-text[data-size="xlarge"] { font-size: 1.6rem; }
 
 .item:hover .caption-text {
   opacity: 1;

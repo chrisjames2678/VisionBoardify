@@ -67,6 +67,12 @@ document.addEventListener('DOMContentLoaded', async () => {
           const captionText = document.createElement('div');
           captionText.className = 'caption-text';
           captionText.textContent = typeof imageData === 'string' ? 'Add a caption in settings' : (imageData.caption || 'Add a caption in settings');
+          
+          // Apply font settings
+          chrome.storage.local.get(['captionFont', 'captionSize'], function(result) {
+            if (result.captionFont) captionText.style.fontFamily = result.captionFont;
+            if (result.captionSize) captionText.dataset.size = result.captionSize;
+          });
 
           // Add error handling for images
           imgElement.onerror = () => {
