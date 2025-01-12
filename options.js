@@ -5,11 +5,18 @@ document.addEventListener('DOMContentLoaded', async () => {
   const backButton = document.getElementById('backToVisionBoard');
   const captionFont = document.getElementById('captionFont');
   const captionSize = document.getElementById('captionSize');
+  const backgroundColor = document.getElementById('backgroundColor');
 
-  // Load saved font preferences
-  chrome.storage.local.get(['captionFont', 'captionSize'], function(result) {
+  // Load saved preferences
+  chrome.storage.local.get(['captionFont', 'captionSize', 'backgroundColor'], function(result) {
     if (result.captionFont) captionFont.value = result.captionFont;
     if (result.captionSize) captionSize.value = result.captionSize;
+    if (result.backgroundColor) backgroundColor.value = result.backgroundColor;
+  });
+
+  // Save background preference
+  backgroundColor.addEventListener('change', (e) => {
+    chrome.storage.local.set({ backgroundColor: e.target.value });
   });
 
   // Save font preferences

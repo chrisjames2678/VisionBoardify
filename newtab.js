@@ -3,6 +3,22 @@ document.addEventListener('DOMContentLoaded', async () => {
   const configButton = document.getElementById('configButton');
   const layoutSwitch = document.getElementById('layoutSwitch');
 
+  // Apply background
+  chrome.storage.local.get(['backgroundColor'], function(result) {
+    if (result.backgroundColor) {
+      if (result.backgroundColor.startsWith('url')) {
+        document.body.style.backgroundImage = result.backgroundColor;
+        document.body.style.backgroundColor = '#000000';
+        document.body.style.backgroundSize = 'cover';
+        document.body.style.backgroundPosition = 'center';
+        document.body.style.backgroundAttachment = 'fixed';
+      } else {
+        document.body.style.backgroundImage = 'none';
+        document.body.style.backgroundColor = result.backgroundColor;
+      }
+    }
+  });
+
 
   // Add click handler for config button
   configButton.addEventListener('click', () => {
