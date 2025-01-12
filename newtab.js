@@ -16,6 +16,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         document.body.style.backgroundImage = 'none';
         document.body.style.backgroundColor = result.backgroundColor;
       }
+    } else {
+      // Set default background if none is set
+      document.body.style.backgroundColor = '#000000';
     }
   });
 

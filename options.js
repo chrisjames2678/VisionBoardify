@@ -16,7 +16,19 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // Save background preference
   backgroundColor.addEventListener('change', (e) => {
-    chrome.storage.local.set({ backgroundColor: e.target.value });
+    chrome.storage.local.set({ backgroundColor: e.target.value }, () => {
+      // Apply background change immediately to preview
+      if (e.target.value.startsWith('url')) {
+        document.body.style.backgroundImage = e.target.value;
+        document.body.style.backgroundColor = '#000000';
+        document.body.style.backgroundSize = 'cover';
+        document.body.style.backgroundPosition = 'center';
+        document.body.style.backgroundAttachment = 'fixed';
+      } else {
+        document.body.style.backgroundImage = 'none';
+        document.body.style.backgroundColor = e.target.value;
+      }
+    });
   });
 
   // Save font preferences
