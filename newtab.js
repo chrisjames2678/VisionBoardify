@@ -123,7 +123,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         showWelcomeModal();
         return;
       }
-      }
 
       container.innerHTML = '';
 
