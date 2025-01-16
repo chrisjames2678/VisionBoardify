@@ -12,6 +12,7 @@ chrome.runtime.onInstalled.addListener(() => {
 
 // Handle messages from content scripts
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+  console.log('Received message:', request);
   if (request.type === 'GET_CACHED_MOSAIC') {
     // Get cached mosaic from storage
     chrome.storage.local.get(['cachedMosaic'], function(result) {

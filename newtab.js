@@ -46,6 +46,20 @@ function showWelcomeModal() {
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
+  // Add error handler for blank screen
+  window.onerror = function(msg, url, lineNo, columnNo, error) {
+    document.body.innerHTML = `
+      <div style="color: white; padding: 20px; text-align: center;">
+        <h2>Something went wrong</h2>
+        <p>Please try refreshing the page. If the issue persists, you can access settings directly at:</p>
+        <button onclick="chrome.runtime.openOptionsPage()" 
+                style="padding: 10px; margin: 10px; cursor: pointer;">
+          Open Settings
+        </button>
+      </div>`;
+    console.error('Error: ', msg, error);
+    return false;
+  };
   const container = document.getElementById('mosaic-container');
   const configButton = document.getElementById('configButton');
   const layoutSwitch = document.getElementById('layoutSwitch');
