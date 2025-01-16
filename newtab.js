@@ -61,19 +61,26 @@ document.addEventListener('DOMContentLoaded', async () => {
       if (!images || images.length === 0) {
         container.innerHTML = `
           <div class="welcome-container">
-            <div class="welcome-title">
-              <h1>Welcome to VisionBoardify</h1>
-            </div>
-            <div class="welcome-intro">
-              The Chrome plugin to help you focus on your goals and dreams. Every time you open a new web page you'll be reminded of your own vision for your future.
-              <div class="settings-prompt">
-                Click the ⚙️ settings button to begin.
+            <h1>Welcome to VisionBoardify</h1>
+            <p class="welcome-intro">The Chrome plugin to help you focus on your goals and dreams. Every time you open a new web page you'll be reminded of your own vision for your future.</p>
+            <p class="settings-prompt">Click the ⚙️ settings button to begin.</p>
+            
+            <div class="steps-container">
+              <div class="step-card">
+                <div class="step-icon">🎯</div>
+                <h3>Choose Images</h3>
+                <p>Select images that represent your hopes and dreams for the future. These will be your daily visual reminders.</p>
               </div>
-            </div>
-            <div class="steps">
-              <div class="step">1. Choose Images that represent your hopes and dreams for the future. This is what you're going to focus on and aim to achieve. The images should instantly represent these goals.</div>
-              <div class="step">2. Add a caption if you want to further enhance and clarify your vision. This will become visible when you hover over the image.</div>
-              <div class="step">3. Select your background, font, and font size.</div>
+              <div class="step-card">
+                <div class="step-icon">✍️</div>
+                <h3>Add Captions</h3>
+                <p>Enhance your vision with meaningful captions that appear when you hover over each image.</p>
+              </div>
+              <div class="step-card">
+                <div class="step-icon">🎨</div>
+                <h3>Customize</h3>
+                <p>Select your background, font, and font size to create your perfect vision board.</p>
+              </div>
             </div>
           </div>`;
         return;

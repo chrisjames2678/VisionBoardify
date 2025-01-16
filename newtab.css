@@ -330,51 +330,82 @@ body {
 .welcome-container {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  align-items: center;
   max-width: 1200px;
   margin: 50px auto;
+  padding: 20px;
   color: #fff;
+  text-align: center;
 }
 
-.welcome-title h1 {
-  font-size: 2.5em;
-  margin: 0;
-  padding: 20px;
-  background: rgba(0, 0, 0, 0.7);
-  border-radius: 15px;
-  backdrop-filter: blur(10px);
-  display: inline-block;
+.welcome-container h1 {
+  font-family: 'League Spartan', sans-serif;
+  font-size: 3em;
+  margin-bottom: 30px;
+  font-weight: 700;
 }
 
 .welcome-intro {
-  font-size: 1.1em;
+  font-family: 'Merriweather', serif;
+  font-size: 1.2em;
   line-height: 1.6;
-  padding: 20px;
-  background: rgba(0, 0, 0, 0.7);
-  border-radius: 15px;
-  backdrop-filter: blur(10px);
   max-width: 600px;
+  margin-bottom: 20px;
 }
 
 .settings-prompt {
-  margin-top: 15px;
   color: #4CAF50;
+  font-size: 1.2em;
   font-weight: bold;
+  margin: 30px 0;
 }
 
-.steps {
+.steps-container {
   display: flex;
-  flex-direction: column;
-  gap: 15px;
+  justify-content: center;
+  gap: 30px;
+  flex-wrap: wrap;
+  margin-top: 40px;
 }
 
-.step {
-  padding: 20px;
-  background: rgba(0, 0, 0, 0.7);
-  border-radius: 15px;
+.step-card {
+  background: rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(10px);
+  border-radius: 20px;
+  padding: 30px;
+  width: 280px;
+  text-align: center;
+  transition: transform 0.3s ease;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.step-card:hover {
+  transform: translateY(-5px);
+}
+
+.step-icon {
+  font-size: 2.5em;
+  margin-bottom: 15px;
+}
+
+.step-card h3 {
+  font-family: 'League Spartan', sans-serif;
+  font-size: 1.4em;
+  margin-bottom: 15px;
+}
+
+.step-card p {
+  font-family: 'Merriweather', serif;
+  font-size: 0.95em;
   line-height: 1.5;
-  max-width: 400px;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+@media (max-width: 768px) {
+  .step-card {
+    width: 100%;
+    max-width: 280px;
+  }
 }
 
 @media (max-width: 768px) {
