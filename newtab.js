@@ -60,8 +60,19 @@ document.addEventListener('DOMContentLoaded', async () => {
 
       if (!images || images.length === 0) {
         container.innerHTML = `
-          <div style="text-align: center; padding: 20px; color: #fff;">
-            <p>No images yet</p>
+          <div class="welcome-container">
+            <h1>Welcome to VisionBoardify</h1>
+            <p class="welcome-intro">The Chrome plugin to help you focus on your goals and dreams. Every time you open a new web page you'll be reminded of your own vision for your future.</p>
+            
+            <p class="start-prompt">Click the ⚙️ settings button to begin.</p>
+            
+            <div class="instructions">
+              <ol>
+                <li>Choose Images that represent your hopes and dreams for the future. This is what you're going to focus on and aim to achieve. The images should instantly represent these goals.</li>
+                <li>Add a caption if you want to further enhance and clarify your vision. This will become visible when you hover over the image.</li>
+                <li>Select your background, font, and font size.</li>
+              </ol>
+            </div>
           </div>`;
         return;
       }
