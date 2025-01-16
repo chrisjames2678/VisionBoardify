@@ -21,7 +21,12 @@ h1 {
   margin: 0;
 }
 
-.back-button {
+.header-buttons {
+  display: flex;
+  gap: 10px;
+}
+
+.back-button, .instructions-button {
   padding: 8px 16px;
   background: #4285f4;
   color: white;
@@ -30,6 +35,14 @@ h1 {
   cursor: pointer;
   font-size: 14px;
   transition: background 0.3s ease;
+}
+
+.instructions-button {
+  background: #34a853;
+}
+
+.instructions-button:hover {
+  background: #2d8a46;
 }
 
 .back-button:hover {

@@ -3,6 +3,19 @@ document.addEventListener('DOMContentLoaded', async () => {
   const imagesGrid = document.getElementById('imagesGrid');
   const imageCount = document.getElementById('imageCount');
   const backButton = document.getElementById('backToVisionBoard');
+  const instructionsButton = document.getElementById('instructionsButton');
+
+  instructionsButton.addEventListener('click', () => {
+    chrome.tabs.create({ url: 'chrome://newtab' }, (tab) => {
+      // Wait for the new tab to load then show welcome modal
+      chrome.tabs.onUpdated.addListener(function listener(tabId, info) {
+        if (tabId === tab.id && info.status === 'complete') {
+          chrome.tabs.sendMessage(tab.id, { action: 'showWelcomeModal' });
+          chrome.tabs.onUpdated.removeListener(listener);
+        }
+      });
+    });
+  });
   const captionFont = document.getElementById('captionFont');
   const captionSize = document.getElementById('captionSize');
   const backgroundColor = document.getElementById('backgroundColor');

@@ -1,3 +1,50 @@
+function createWelcomeModal() {
+  const modal = document.createElement('div');
+  modal.className = 'welcome-modal';
+  modal.innerHTML = `
+    <div class="welcome-container">
+      <button class="close-modal">×</button>
+      <h1>Welcome to VisionBoardify</h1>
+      <p class="welcome-intro">The Chrome plugin to help you focus on your goals and dreams. Every time you open a new web page you'll be reminded of your own vision for your future.</p>
+      <p class="settings-prompt">Click the ⚙️ settings button to begin.</p>
+      
+      <div class="steps-container">
+        <div class="step-card">
+          <div class="step-icon">🎯</div>
+          <h3>Choose Images</h3>
+          <p>Select images that represent your hopes and dreams for the future. These will be your daily visual reminders.</p>
+        </div>
+        <div class="step-card">
+          <div class="step-icon">✍️</div>
+          <h3>Add Captions</h3>
+          <p>Enhance your vision with meaningful captions that appear when you hover over each image.</p>
+        </div>
+        <div class="step-card">
+          <div class="step-icon">🎨</div>
+          <h3>Customize</h3>
+          <p>Select your background, font, and font size to create your perfect vision board.</p>
+        </div>
+      </div>
+    </div>
+  `;
+  
+  document.body.appendChild(modal);
+  
+  modal.querySelector('.close-modal').addEventListener('click', () => {
+    modal.style.display = 'none';
+  });
+  
+  return modal;
+}
+
+function showWelcomeModal() {
+  let modal = document.querySelector('.welcome-modal');
+  if (!modal) {
+    modal = createWelcomeModal();
+  }
+  modal.style.display = 'block';
+}
+
 document.addEventListener('DOMContentLoaded', async () => {
   const container = document.getElementById('mosaic-container');
   const configButton = document.getElementById('configButton');
@@ -59,31 +106,9 @@ document.addEventListener('DOMContentLoaded', async () => {
       const images = await StorageManager.getImages();
 
       if (!images || images.length === 0) {
-        container.innerHTML = `
-          <div class="welcome-container">
-            <h1>Welcome to VisionBoardify</h1>
-            <p class="welcome-intro">The Chrome plugin to help you focus on your goals and dreams. Every time you open a new web page you'll be reminded of your own vision for your future.</p>
-            <p class="settings-prompt">Click the ⚙️ settings button to begin.</p>
-            
-            <div class="steps-container">
-              <div class="step-card">
-                <div class="step-icon">🎯</div>
-                <h3>Choose Images</h3>
-                <p>Select images that represent your hopes and dreams for the future. These will be your daily visual reminders.</p>
-              </div>
-              <div class="step-card">
-                <div class="step-icon">✍️</div>
-                <h3>Add Captions</h3>
-                <p>Enhance your vision with meaningful captions that appear when you hover over each image.</p>
-              </div>
-              <div class="step-card">
-                <div class="step-icon">🎨</div>
-                <h3>Customize</h3>
-                <p>Select your background, font, and font size to create your perfect vision board.</p>
-              </div>
-            </div>
-          </div>`;
+        showWelcomeModal();
         return;
+      }
       }
 
       container.innerHTML = '';
