@@ -1,5 +1,5 @@
 {
-  "name": "visionboardify",
+  "name": "VisionBoardify",
   "version": "1.0.0",
   "main": "background.js",
   "scripts": {
