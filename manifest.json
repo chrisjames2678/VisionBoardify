@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "name": "Vision Board Mosaic",
+  "name": "VisionBoardify",
   "version": "1.0",
   "description": "Generate vision board mosaics as new tab backgrounds",
   "permissions": [
