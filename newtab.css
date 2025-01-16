@@ -117,7 +117,7 @@ body {
   border-radius: 8px;
 }
 
-.item:hover .caption-overlay {
+.item:hover .caption-overlay[style*="display: flex"] {
   transform: scale(1) rotate(0deg);
   opacity: 1;
   backdrop-filter: blur(12px);

@@ -85,13 +85,19 @@ document.addEventListener('DOMContentLoaded', async () => {
           // Create caption text
           const captionText = document.createElement('div');
           captionText.className = 'caption-text';
-          captionText.textContent = typeof imageData === 'string' ? 'Add a caption in settings' : (imageData.caption || 'Add a caption in settings');
+          const hasCaption = typeof imageData !== 'string' && imageData.caption && imageData.caption.trim() !== '';
           
-          // Apply font settings
-          chrome.storage.local.get(['captionFont', 'captionSize'], function(result) {
-            if (result.captionFont) captionText.style.fontFamily = result.captionFont;
-            if (result.captionSize) captionText.dataset.size = result.captionSize;
-          });
+          if (hasCaption) {
+            captionText.textContent = imageData.caption;
+            captionOverlay.style.display = 'flex';
+            // Apply font settings
+            chrome.storage.local.get(['captionFont', 'captionSize'], function(result) {
+              if (result.captionFont) captionText.style.fontFamily = result.captionFont;
+              if (result.captionSize) captionText.dataset.size = result.captionSize;
+            });
+          } else {
+            captionOverlay.style.display = 'none';
+          }
 
           // Add error handling for images
           imgElement.onerror = () => {
