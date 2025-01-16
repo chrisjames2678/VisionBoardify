@@ -328,65 +328,61 @@ body {
 }
 
 .welcome-container {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
   max-width: 1200px;
   margin: 50px auto;
-  padding: 30px;
   color: #fff;
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 20px;
-  align-items: start;
 }
 
-.welcome-container h1 {
-  grid-column: 1;
+.welcome-title h1 {
   font-size: 2.5em;
   margin: 0;
   padding: 20px;
   background: rgba(0, 0, 0, 0.7);
   border-radius: 15px;
   backdrop-filter: blur(10px);
+  display: inline-block;
 }
 
 .welcome-intro {
-  grid-column: 2;
   font-size: 1.1em;
   line-height: 1.6;
   padding: 20px;
-  margin: 0;
   background: rgba(0, 0, 0, 0.7);
   border-radius: 15px;
   backdrop-filter: blur(10px);
+  max-width: 600px;
 }
 
-.instructions {
-  grid-column: 3;
-  text-align: left;
+.settings-prompt {
+  margin-top: 15px;
+  color: #4CAF50;
+  font-weight: bold;
+}
+
+.steps {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.step {
   padding: 20px;
   background: rgba(0, 0, 0, 0.7);
   border-radius: 15px;
   backdrop-filter: blur(10px);
-}
-
-.instructions ol {
-  padding-left: 20px;
-  margin: 0;
-}
-
-.instructions li {
-  margin: 15px 0;
   line-height: 1.5;
+  max-width: 400px;
 }
 
-@media (max-width: 1200px) {
+@media (max-width: 768px) {
   .welcome-container {
-    grid-template-columns: 1fr;
-    max-width: 800px;
+    margin: 20px;
   }
   
-  .welcome-container h1,
-  .welcome-intro,
-  .instructions {
-    grid-column: 1;
+  .step {
+    max-width: 100%;
   }
 }
