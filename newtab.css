@@ -12,9 +12,8 @@ body {
   padding: 20px;
   opacity: 1;
   transition: opacity 0.3s ease;
-  width: calc(100% - 40px);
+  width: min(calc(100% - 40px), 1600px);
   margin: 0 auto;
-  max-width: 1600px;
   box-sizing: border-box;
   transition: width 0.3s ease-out;
 }
