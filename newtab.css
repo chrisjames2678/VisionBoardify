@@ -12,11 +12,13 @@ body {
   padding: 20px;
   opacity: 1;
   transition: opacity 0.3s ease;
-  width: calc(100% - 40px);
+  width: 100%;
   max-width: 1600px;
   margin: 0 auto;
   box-sizing: border-box;
   column-fill: balance;
+  padding-right: 0;
+  padding-left: 0;
 }
 
 .bento {
