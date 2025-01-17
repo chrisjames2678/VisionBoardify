@@ -11,8 +11,9 @@ body {
   width: 100%;
   column-count: 5;
   box-sizing: border-box;
-  column-fill: initial;
+  column-fill: auto;
   margin: 0;
+  max-width: 100%;
 }
 
 .masonry .item {
@@ -79,12 +80,13 @@ body {
 }
 
 .item {
-  break-inside: avoid;
-  margin-bottom: 20px;
+  break-inside: avoid-column;
+  page-break-inside: avoid;
+  margin-bottom: 15px;
   position: relative;
   overflow: hidden;
   background: #000;
-  display: inline-block;
+  display: block;
   width: 100%;
   transform: translateZ(0);
   border-radius: 12px;
