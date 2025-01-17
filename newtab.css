@@ -6,7 +6,6 @@ body {
 }
 
 .masonry {
-  column-count: 5;
   column-gap: 15px;
   padding: 15px;
   width: 100%;
@@ -16,11 +15,12 @@ body {
   column-fill: balance;
 }
 
-.masonry-item {
+.item {
   break-inside: avoid;
-  margin-bottom: 20px;
+  margin-bottom: 15px;
   display: inline-block;
   width: 100%;
+  box-sizing: border-box;
 }
 
 .bento {
