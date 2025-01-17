@@ -9,10 +9,18 @@ body {
   column-count: 5;
   column-gap: 15px;
   padding: 15px;
-  width: calc(100% - 30px);
+  width: 100%;
+  max-width: 2400px;
   margin: 0 auto;
   box-sizing: border-box;
   column-fill: balance;
+}
+
+.masonry-item {
+  break-inside: avoid;
+  margin-bottom: 20px;
+  display: inline-block;
+  width: 100%;
 }
 
 .bento {
