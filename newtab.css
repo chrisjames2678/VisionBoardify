@@ -9,17 +9,19 @@ body {
   column-gap: 15px;
   padding: 15px;
   width: 100%;
+  column-count: 5;
   box-sizing: border-box;
-  column-fill: auto;
+  column-fill: initial;
   margin: 0;
 }
 
-.item {
+.masonry .item {
   break-inside: avoid;
   margin-bottom: 15px;
-  display: inline-block;
+  display: block;
   width: 100%;
   box-sizing: border-box;
+  page-break-inside: avoid;
 }
 
 .bento {
