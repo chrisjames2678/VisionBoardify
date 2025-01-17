@@ -10,7 +10,7 @@ body {
   padding: 15px;
   width: 100%;
   box-sizing: border-box;
-  column-fill: balance;
+  column-fill: auto;
   margin: 0;
 }
 
