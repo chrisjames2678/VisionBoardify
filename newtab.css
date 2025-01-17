@@ -257,21 +257,21 @@ body {
 }
 
 /* Responsive adjustments */
-@media screen and (min-width: 1601px) {
-  .masonry, .bento {
-    column-count: 5;
+@media screen and (min-width: 2201px) {
+  .masonry {
+    column-count: 6;
   }
 }
 
-@media screen and (max-width: 2200px) {
+@media screen and (min-width: 1801px) and (max-width: 2200px) {
   .masonry {
     column-count: 5;
   }
 }
 
-@media screen and (max-width: 1800px) {
+@media screen and (min-width: 1401px) and (max-width: 1800px) {
   .masonry {
-    column-count: 4; /* Adjusted column count for 1800px breakpoint */
+    column-count: 4;
   }
 }
 
