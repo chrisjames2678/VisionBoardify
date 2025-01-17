@@ -9,10 +9,9 @@ body {
   column-gap: 15px;
   padding: 15px;
   width: 100%;
-  max-width: 2400px;
-  margin: 0 auto;
   box-sizing: border-box;
   column-fill: balance;
+  margin: 0;
 }
 
 .item {
