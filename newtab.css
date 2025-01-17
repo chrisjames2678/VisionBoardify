@@ -264,7 +264,7 @@ body {
 
 @media screen and (max-width: 1800px) {
   .masonry {
-    column-count: 4;
+    column-count: 4; /* Adjusted column count for 1800px breakpoint */
   }
 }
 
@@ -438,7 +438,7 @@ body {
   .welcome-container {
     margin: 20px;
   }
-  
+
   .step {
     max-width: 100%;
   }
