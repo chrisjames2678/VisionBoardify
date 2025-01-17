@@ -6,19 +6,13 @@ body {
 }
 
 .masonry {
-  display: block;
-  column-count: 4;
-  column-gap: 20px;
-  padding: 20px;
-  opacity: 1;
-  transition: opacity 0.3s ease;
-  width: 100%;
-  max-width: 1600px;
+  column-count: 5;
+  column-gap: 15px;
+  padding: 15px;
+  width: calc(100% - 30px);
   margin: 0 auto;
   box-sizing: border-box;
   column-fill: balance;
-  padding-right: 0;
-  padding-left: 0;
 }
 
 .bento {
@@ -262,39 +256,39 @@ body {
   }
 }
 
-@media screen and (max-width: 1600px) {
-  .masonry, .bento {
+@media screen and (max-width: 2200px) {
+  .masonry {
+    column-count: 5;
+  }
+}
+
+@media screen and (max-width: 1800px) {
+  .masonry {
     column-count: 4;
   }
 }
 
-@media screen and (max-width: 1200px) {
-  .masonry, .bento {
+@media screen and (max-width: 1400px) {
+  .masonry {
     column-count: 3;
   }
 }
 
-@media screen and (max-width: 800px) {
-  .masonry, .bento {
+@media screen and (max-width: 1000px) {
+  .masonry {
     column-count: 2;
-    column-gap: 15px;
-    padding: 15px;
-  }
-
-  .item {
-    margin-bottom: 15px;
+    column-gap: 10px;
+    padding: 10px;
+    width: calc(100% - 20px);
   }
 }
 
-@media screen and (max-width: 500px) {
-  .masonry, .bento {
+@media screen and (max-width: 600px) {
+  .masonry {
     column-count: 1;
     column-gap: 10px;
     padding: 10px;
-  }
-
-  .item {
-    margin-bottom: 10px;
+    width: calc(100% - 20px);
   }
 }
 
