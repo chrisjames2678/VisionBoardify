@@ -158,8 +158,17 @@ document.addEventListener('DOMContentLoaded', async () => {
   async function displayImages() {
     try {
       console.log('[Images] Starting image display');
-      const images = await StorageManager.getImages();
+      let images = await StorageManager.getImages();
       console.log(`[Images] Retrieved ${images?.length || 0} images`);
+      
+      // Check if randomization is enabled
+      const result = await new Promise(resolve => {
+        chrome.storage.local.get(['randomizeImages'], resolve);
+      });
+      
+      if (result.randomizeImages) {
+        images = [...images].sort(() => Math.random() - 0.5);
+      }
 
       if (!images || images.length === 0) {
         showWelcomeModal();

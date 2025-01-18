@@ -19,9 +19,11 @@ document.addEventListener('DOMContentLoaded', async () => {
   const captionFont = document.getElementById('captionFont');
   const captionSize = document.getElementById('captionSize');
   const backgroundColor = document.getElementById('backgroundColor');
+  const randomizeImages = document.getElementById('randomizeImages');
 
   // Load saved preferences
-  chrome.storage.local.get(['captionFont', 'captionSize', 'backgroundColor'], function(result) {
+  chrome.storage.local.get(['captionFont', 'captionSize', 'backgroundColor', 'randomizeImages'], function(result) {
+    if (result.randomizeImages !== undefined) randomizeImages.checked = result.randomizeImages;
     if (result.captionFont) captionFont.value = result.captionFont;
     if (result.captionSize) captionSize.value = result.captionSize;
     if (result.backgroundColor) backgroundColor.value = result.backgroundColor;
@@ -51,6 +53,10 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   captionSize.addEventListener('change', (e) => {
     chrome.storage.local.set({ captionSize: e.target.value });
+  });
+
+  randomizeImages.addEventListener('change', (e) => {
+    chrome.storage.local.set({ randomizeImages: e.target.checked });
   });
 
   // Handle back button click
