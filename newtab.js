@@ -70,9 +70,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   };
   const container = document.getElementById('mosaic-container');
   const configButton = document.getElementById('configButton');
-  const layoutMasonry = document.getElementById('layoutMasonry');
-  const layoutBento = document.getElementById('layoutBento');
-  const layoutPolaroid = document.getElementById('layoutPolaroid');
+  const layoutSwitch = document.getElementById('layoutSwitch');
 
   // Apply background
   chrome.storage.local.get(['backgroundColor'], function(result) {
@@ -134,20 +132,15 @@ document.addEventListener('DOMContentLoaded', async () => {
   resizeObserver.observe(container);
 
   let currentLayout = await getLayout();
-  function switchLayout(newLayout) {
-    console.log(`[Layout] Switching from ${currentLayout} to ${newLayout}`);
+  layoutSwitch.addEventListener('click', async () => {
+    console.log(`[Layout] Switching from ${currentLayout}`);
     container.style.opacity = '0';
     setTimeout(async () => {
-      currentLayout = newLayout;
+      currentLayout = currentLayout === 'masonry' ? 'bento' : 'masonry';
+      console.log(`[Layout] New layout: ${currentLayout}`);
+      layoutSwitch.textContent = currentLayout;
       localStorage.setItem('layout', currentLayout);
       container.className = currentLayout;
-      
-      // Update active button states
-      [layoutMasonry, layoutBento, layoutPolaroid].forEach(btn => {
-        btn.classList.remove('active');
-      });
-      document.getElementById(`layout${newLayout.charAt(0).toUpperCase() + newLayout.slice(1)}`).classList.add('active');
-      
       console.log(`[Layout] Container class set to: ${container.className}`);
       await displayImages();
       console.log('[Layout] Images displayed');
@@ -155,11 +148,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         container.style.opacity = '1';
       }, 50);
     }, 300);
-  }
-
-  layoutMasonry.addEventListener('click', () => switchLayout('masonry'));
-  layoutBento.addEventListener('click', () => switchLayout('bento'));
-  layoutPolaroid.addEventListener('click', () => switchLayout('polaroid'));
+  });
 
   // Set initial layout text
   currentLayout = localStorage.getItem('layout') || 'masonry';
