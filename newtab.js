@@ -100,16 +100,25 @@ document.addEventListener('DOMContentLoaded', async () => {
     for (let entry of entries) {
       const width = entry.contentRect.width;
       const styles = getComputedStyle(container);
+      const items = container.querySelectorAll('.item');
       console.log('[Layout Debug] ----------------');
       console.log(`[Layout] Window width: ${window.innerWidth}px`);
       console.log(`[Layout] Container width: ${width}px`);
-      console.log(`[Layout] Computed width: ${styles.width}`);
-      console.log(`[Layout] Column count: ${styles.columnCount}`);
-      console.log(`[Layout] Column width: ${styles.columnWidth}`);
+      console.log(`[Layout] Effective columns: ${styles.columnCount}`);
       console.log(`[Layout] Column gap: ${styles.columnGap}`);
-      console.log(`[Layout] Item count:`, container.children.length);
-      console.log('[Layout] Column fill:', styles.columnFill);
-      console.log('[Layout] Container display:', styles.display);
+      console.log(`[Layout] Items per column: ~${Math.ceil(items.length / parseInt(styles.columnCount))}`);
+      console.log(`[Layout] Total items: ${items.length}`);
+      console.log(`[Layout] First item width: ${items[0]?.offsetWidth}px`);
+      console.log(`[Layout] Container padding: ${styles.padding}`);
+      console.log(`[Layout] Layout mode: ${container.className}`);
+      
+      // Check for layout issues
+      if (items[0]?.offsetWidth === width) {
+        console.warn('[Layout Warning] Items taking full container width - possible column failure');
+      }
+      if (parseInt(styles.columnCount) === 1 && width > 600) {
+        console.warn('[Layout Warning] Single column on wide screen - check media queries');
+      }
     }
   });
   resizeObserver.observe(container);
