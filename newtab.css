@@ -10,12 +10,13 @@ body {
   padding: 15px;
   width: 100%;
   box-sizing: border-box;
-  column-fill: balance;
+  column-fill: balance-all;
   margin: 0 auto;
   min-width: 0;
   column-width: auto !important;
   height: auto !important;
   max-width: 2400px;
+  column-fill: auto;
 }
 
 /* Force column-count at each breakpoint */
@@ -52,15 +53,15 @@ body {
 }
 
 .masonry .item {
-  break-inside: avoid-column;
+  break-inside: avoid;
   margin-bottom: 15px;
-  display: inline-block;
+  display: block;
   width: 100%;
   box-sizing: border-box;
   will-change: transform;
   -webkit-column-break-inside: avoid;
-  -moz-column-break-inside: avoid;
-  column-break-inside: avoid;
+  page-break-inside: avoid;
+  break-inside: avoid-column;
 }
 
 .bento {
