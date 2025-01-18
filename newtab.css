@@ -11,19 +11,22 @@ body {
   width: 100%;
   column-count: 5;
   box-sizing: border-box;
-  column-fill: auto;
+  column-fill: balance;
   margin: 0;
   max-width: 100%;
+  column-width: auto;
 }
 
 .masonry .item {
-  break-inside: avoid;
+  break-inside: avoid-column;
   margin-bottom: 15px;
   display: inline-block;
   width: 100%;
   box-sizing: border-box;
-  page-break-inside: avoid;
   will-change: transform;
+  -webkit-column-break-inside: avoid;
+  -moz-column-break-inside: avoid;
+  column-break-inside: avoid;
 }
 
 .bento {
