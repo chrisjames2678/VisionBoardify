@@ -12,7 +12,7 @@ function createWelcomeModal() {
         <div class="step-card">
           <div class="step-icon">🎯</div>
           <h3>Choose Images</h3>
-          <p>Select images that represent your hopes and dreams for the future. These will be your daily visual reminders.</p>
+          <p>Select images that represent your hopes and dreams for the future. Choose at least 12x for best results.</p>
         </div>
         <div class="step-card">
           <div class="step-icon">✍️</div>
