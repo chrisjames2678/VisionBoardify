@@ -97,13 +97,17 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   let currentLayout = await getLayout();
   layoutSwitch.addEventListener('click', async () => {
+    console.log(`[Layout] Switching from ${currentLayout}`);
     container.style.opacity = '0';
     setTimeout(async () => {
       currentLayout = currentLayout === 'masonry' ? 'bento' : 'masonry';
+      console.log(`[Layout] New layout: ${currentLayout}`);
       layoutSwitch.textContent = currentLayout;
       localStorage.setItem('layout', currentLayout);
       container.className = currentLayout;
+      console.log(`[Layout] Container class set to: ${container.className}`);
       await displayImages();
+      console.log('[Layout] Images displayed');
       setTimeout(() => {
         container.style.opacity = '1';
       }, 50);
@@ -117,7 +121,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   async function displayImages() {
     try {
+      console.log('[Images] Starting image display');
       const images = await StorageManager.getImages();
+      console.log(`[Images] Retrieved ${images?.length || 0} images`);
 
       if (!images || images.length === 0) {
         showWelcomeModal();
@@ -159,7 +165,13 @@ document.addEventListener('DOMContentLoaded', async () => {
 
           // Add error handling for images
           imgElement.onerror = () => {
+            console.error('[Images] Failed to load image:', typeof imageData === 'string' ? imageData : imageData.url);
             itemDiv.style.display = 'none';
+          };
+
+          imgElement.onload = () => {
+            console.log('[Images] Successfully loaded image:', 
+              imgElement.naturalWidth + 'x' + imgElement.naturalHeight);
           };
 
           captionOverlay.appendChild(captionText);
