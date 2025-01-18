@@ -6,62 +6,66 @@ body {
 }
 
 .masonry {
-  column-gap: 15px;
-  padding: 15px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(236px, 1fr));
+  grid-gap: 16px;
+  padding: 16px;
   width: 100%;
-  box-sizing: border-box;
-  column-fill: balance-all;
-  margin: 0 auto;
-  min-width: 0;
-  column-width: auto !important;
-  height: auto !important;
   max-width: 2400px;
-  column-fill: auto;
+  margin: 0 auto;
+  box-sizing: border-box;
 }
 
-/* Force column-count at each breakpoint */
 @media screen and (min-width: 1400px) {
   .masonry {
-    column-count: 5 !important;
+    grid-template-columns: repeat(5, minmax(236px, 1fr));
   }
 }
 
 @media screen and (max-width: 1399px) and (min-width: 1100px) {
   .masonry {
-    column-count: 4 !important;
+    grid-template-columns: repeat(4, minmax(236px, 1fr));
   }
 }
 
 @media screen and (max-width: 1099px) and (min-width: 800px) {
   .masonry {
-    column-count: 3 !important;
+    grid-template-columns: repeat(3, minmax(236px, 1fr));
   }
 }
 
 @media screen and (max-width: 799px) and (min-width: 600px) {
   .masonry {
-    column-count: 2 !important;
+    grid-template-columns: repeat(2, minmax(236px, 1fr));
   }
 }
 
 @media screen and (max-width: 599px) {
   .masonry {
-    column-count: 1 !important;
-    padding: 10px;
-    column-gap: 10px;
+    grid-template-columns: repeat(1, 1fr);
+    grid-gap: 12px;
+    padding: 12px;
   }
 }
 
 .masonry .item {
-  break-inside: avoid;
-  margin-bottom: 15px;
-  display: block;
   width: 100%;
-  box-sizing: border-box;
-  will-change: transform;
-  -webkit-column-break-inside: avoid;
-  page-break-inside: avoid;
-  break-inside: avoid-column;
+  display: inline-block;
+  margin: 0;
+  break-inside: avoid;
+  position: relative;
+  background: #000;
+  border-radius: 16px;
+  overflow: hidden;
+  transform: translateZ(0);
+  box-shadow: 0 2px 20px rgba(0,0,0,0.1);
+}
+
+.masonry .item img {
+  width: 100%;
+  height: auto;
+  display: block;
+  object-fit: cover;
 }
 
 .bento {
