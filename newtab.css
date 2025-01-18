@@ -6,10 +6,9 @@ body {
 }
 
 .masonry {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(236px, 1fr));
-  grid-gap: 16px;
-  padding: 16px;
+  columns: 5;
+  column-gap: 20px;
+  padding: 20px;
   width: 100%;
   max-width: 2400px;
   margin: 0 auto;
@@ -51,8 +50,9 @@ body {
 .masonry .item {
   width: 100%;
   display: inline-block;
-  margin: 0;
+  margin-bottom: 20px;
   break-inside: avoid;
+  page-break-inside: avoid;
   position: relative;
   background: #000;
   border-radius: 16px;
