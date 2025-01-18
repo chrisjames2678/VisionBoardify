@@ -1,12 +1,14 @@
 
 document.addEventListener('DOMContentLoaded', async () => {
+  let imageUpload, imagesGrid, imageCount;
+  
   try {
     console.log('[Options] DOM Content Loaded');
     
     // Initialize elements
-    const imageUpload = document.getElementById('imageUpload');
-    const imagesGrid = document.getElementById('imagesGrid');
-    const imageCount = document.getElementById('imageCount');
+    imageUpload = document.getElementById('imageUpload');
+    imagesGrid = document.getElementById('imagesGrid');
+    imageCount = document.getElementById('imageCount');
     const backButton = document.getElementById('backToVisionBoard');
     const instructionsButton = document.getElementById('instructionsButton');
     const captionFont = document.getElementById('captionFont');

@@ -70,7 +70,9 @@ document.addEventListener('DOMContentLoaded', async () => {
   };
   const container = document.getElementById('mosaic-container');
   const configButton = document.getElementById('configButton');
-  const layoutSwitch = document.getElementById('layoutSwitch');
+  const layoutBento = document.getElementById('layoutBento');
+  const layoutMasonry = document.getElementById('layoutMasonry');
+  const layoutPolaroid = document.getElementById('layoutPolaroid');
 
   // Apply background
   chrome.storage.local.get(['backgroundColor'], function(result) {
