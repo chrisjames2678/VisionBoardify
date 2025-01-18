@@ -296,34 +296,34 @@ body {
   right: 20px;
 }
 
-/* Responsive adjustments */
-/* Default state for larger screens */
+/* Single set of responsive breakpoints */
 .masonry {
-  column-count: 5 !important;
+  column-count: 5;
+  column-gap: 16px;
+  padding: 16px;
 }
 
-/* Responsive breakpoints */
 @media screen and (max-width: 1400px) {
   .masonry {
-    column-count: 4 !important;
+    column-count: 4;
   }
 }
 
 @media screen and (max-width: 1100px) {
   .masonry {
-    column-count: 3 !important;
+    column-count: 3;
   }
 }
 
 @media screen and (max-width: 800px) {
   .masonry {
-    column-count: 2 !important;
+    column-count: 2;
   }
 }
 
 @media screen and (max-width: 600px) {
   .masonry {
-    column-count: 1 !important;
+    column-count: 1;
     column-gap: 10px;
     padding: 10px;
   }
