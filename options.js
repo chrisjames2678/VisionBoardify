@@ -1,9 +1,29 @@
 document.addEventListener('DOMContentLoaded', async () => {
-  const imageUpload = document.getElementById('imageUpload');
-  const imagesGrid = document.getElementById('imagesGrid');
-  const imageCount = document.getElementById('imageCount');
-  const backButton = document.getElementById('backToVisionBoard');
-  const instructionsButton = document.getElementById('instructionsButton');
+  try {
+    console.log('[Options] DOM Content Loaded');
+    const elements = {
+      imageUpload: document.getElementById('imageUpload'),
+      imagesGrid: document.getElementById('imagesGrid'),
+      imageCount: document.getElementById('imageCount'),
+      backButton: document.getElementById('backToVisionBoard'),
+      instructionsButton: document.getElementById('instructionsButton'),
+      captionFont: document.getElementById('captionFont'),
+      captionSize: document.getElementById('captionSize'),
+      backgroundColor: document.getElementById('backgroundColor'),
+      randomizeImages: document.getElementById('randomizeImages')
+    };
+
+    // Check if all elements are found
+    const missingElements = Object.entries(elements)
+      .filter(([key, value]) => !value)
+      .map(([key]) => key);
+
+    if (missingElements.length > 0) {
+      console.error('[Options] Missing elements:', missingElements);
+      throw new Error(`Missing elements: ${missingElements.join(', ')}`);
+    }
+
+    const {imageUpload, imagesGrid, imageCount, backButton, instructionsButton} = elements;
 
   instructionsButton.addEventListener('click', () => {
     chrome.tabs.create({ url: 'chrome://newtab' }, (tab) => {
