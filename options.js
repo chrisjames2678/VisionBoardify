@@ -1,22 +1,17 @@
 document.addEventListener('DOMContentLoaded', async () => {
   try {
     console.log('[Options] DOM Content Loaded');
-    
-    // Initialize all required elements
-    const imageUpload = document.getElementById('imageUpload');
-    const imagesGrid = document.getElementById('imagesGrid');
-    const imageCount = document.getElementById('imageCount');
-    const backButton = document.getElementById('backToVisionBoard');
-    const instructionsButton = document.getElementById('instructionsButton');
-    const captionFont = document.getElementById('captionFont');
-    const captionSize = document.getElementById('captionSize');
-    const backgroundColor = document.getElementById('backgroundColor');
-    const randomizeImages = document.getElementById('randomizeImages');
-
-    if (!imageUpload || !imagesGrid || !imageCount) {
-      console.error('[Options] Critical elements missing');
-      throw new Error('Required elements not found');
-    }
+    const elements = {
+      imageUpload: document.getElementById('imageUpload'),
+      imagesGrid: document.getElementById('imagesGrid'),
+      imageCount: document.getElementById('imageCount'),
+      backButton: document.getElementById('backToVisionBoard'),
+      instructionsButton: document.getElementById('instructionsButton'),
+      captionFont: document.getElementById('captionFont'),
+      captionSize: document.getElementById('captionSize'),
+      backgroundColor: document.getElementById('backgroundColor'),
+      randomizeImages: document.getElementById('randomizeImages')
+    };
 
     // Check if all elements are found
     const missingElements = Object.entries(elements)
@@ -187,18 +182,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   }
 
-  // Initialize image upload handler
   imageUpload.addEventListener('change', async (event) => {
-    console.log('[Upload] File input change detected');
-    const files = Array.from(event.target.files || []);
-    if (files.length === 0) {
-      console.log('[Upload] No files selected');
-      return;
-    }
-    
+    const files = Array.from(event.target.files);
     const maxFileSize = 5 * 1024 * 1024; // 5MB limit
     const maxImages = 20; // Maximum number of images
-    console.log(`[Upload] Processing ${files.length} files`);
     let currentImages = await StorageManager.getImages();
 
     if (currentImages.length + files.length > maxImages) {
