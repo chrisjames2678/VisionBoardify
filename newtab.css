@@ -8,12 +8,12 @@ body {
 .masonry {
   column-gap: 15px;
   padding: 15px;
-  width: 100%;
+  width: calc(100% - 30px);
   column-count: 5;
   box-sizing: border-box;
   column-fill: balance;
-  margin: 0;
-  max-width: 100%;
+  margin: 0 auto;
+  max-width: 2400px;
   column-width: auto;
 }
 
@@ -274,12 +274,14 @@ body {
 @media screen and (max-width: 2200px) {
   .masonry {
     column-count: 4;
+    max-width: 1900px;
   }
 }
 
 @media screen and (max-width: 1800px) {
   .masonry {
     column-count: 3;
+    max-width: 1400px;
   }
 }
 

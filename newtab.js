@@ -95,6 +95,17 @@ document.addEventListener('DOMContentLoaded', async () => {
     return localStorage.getItem('layout') || '1x'; 
   };
 
+  // Add resize observer for debugging
+  const resizeObserver = new ResizeObserver(entries => {
+    for (let entry of entries) {
+      const width = entry.contentRect.width;
+      console.log(`[Layout] Container width: ${width}px`);
+      console.log(`[Layout] Current column count:`, getComputedStyle(container).columnCount);
+      console.log(`[Layout] Current container width:`, getComputedStyle(container).width);
+    }
+  });
+  resizeObserver.observe(container);
+
   let currentLayout = await getLayout();
   layoutSwitch.addEventListener('click', async () => {
     console.log(`[Layout] Switching from ${currentLayout}`);
