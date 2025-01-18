@@ -158,6 +158,19 @@ input[type="file"] {
   border-radius: 8px 8px 0 0;
 }
 
+.image-item.dragging {
+  opacity: 0.5;
+  cursor: move;
+}
+
+.image-item {
+  cursor: grab;
+}
+
+.image-item:active {
+  cursor: grabbing;
+}
+
 .settings-group,
 .font-settings {
   margin: 20px 0;

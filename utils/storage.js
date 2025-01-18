@@ -68,4 +68,16 @@ class StorageManager {
       chrome.storage.local.set({ images: [] }, resolve);
     });
   }
+
+  static async reorderImages(fromIndex, toIndex) {
+    const images = await this.getImages();
+    if (fromIndex >= 0 && fromIndex < images.length && toIndex >= 0 && toIndex < images.length) {
+      const [movedImage] = images.splice(fromIndex, 1);
+      images.splice(toIndex, 0, movedImage);
+      return new Promise((resolve) => {
+        chrome.storage.local.set({ images }, resolve);
+      });
+    }
+    return Promise.reject(new Error('Invalid indices'));
+  }
 }

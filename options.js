@@ -70,6 +70,46 @@ document.addEventListener('DOMContentLoaded', async () => {
     images.forEach((imageData, index) => {
       const div = document.createElement('div');
       div.className = 'image-item';
+      div.draggable = true;
+      div.dataset.index = index;
+      
+      div.addEventListener('dragstart', (e) => {
+        e.dataTransfer.setData('text/plain', index);
+        div.classList.add('dragging');
+      });
+
+      div.addEventListener('dragend', () => {
+        div.classList.remove('dragging');
+      });
+
+      div.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        const draggingItem = imagesGrid.querySelector('.dragging');
+        if (draggingItem !== div) {
+          const rect = div.getBoundingClientRect();
+          const midY = rect.top + rect.height / 2;
+          const insertAfter = e.clientY > midY;
+          if (insertAfter) {
+            div.parentNode.insertBefore(draggingItem, div.nextSibling);
+          } else {
+            div.parentNode.insertBefore(draggingItem, div);
+          }
+        }
+      });
+
+      div.addEventListener('drop', async (e) => {
+        e.preventDefault();
+        const fromIndex = parseInt(e.dataTransfer.getData('text/plain'));
+        const toIndex = parseInt(div.dataset.index);
+        if (fromIndex !== toIndex) {
+          try {
+            await StorageManager.reorderImages(fromIndex, toIndex);
+            await updateImageGrid();
+          } catch (error) {
+            console.error('Error reordering images:', error);
+          }
+        }
+      });
 
       const img = document.createElement('img');
       img.src = typeof imageData === 'string' ? imageData : imageData.url;
