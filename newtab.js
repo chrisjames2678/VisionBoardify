@@ -99,9 +99,17 @@ document.addEventListener('DOMContentLoaded', async () => {
   const resizeObserver = new ResizeObserver(entries => {
     for (let entry of entries) {
       const width = entry.contentRect.width;
+      const styles = getComputedStyle(container);
+      console.log('[Layout Debug] ----------------');
+      console.log(`[Layout] Window width: ${window.innerWidth}px`);
       console.log(`[Layout] Container width: ${width}px`);
-      console.log(`[Layout] Current column count:`, getComputedStyle(container).columnCount);
-      console.log(`[Layout] Current container width:`, getComputedStyle(container).width);
+      console.log(`[Layout] Computed width: ${styles.width}`);
+      console.log(`[Layout] Column count: ${styles.columnCount}`);
+      console.log(`[Layout] Column width: ${styles.columnWidth}`);
+      console.log(`[Layout] Column gap: ${styles.columnGap}`);
+      console.log(`[Layout] Item count:`, container.children.length);
+      console.log('[Layout] Column fill:', styles.columnFill);
+      console.log('[Layout] Container display:', styles.display);
     }
   });
   resizeObserver.observe(container);
