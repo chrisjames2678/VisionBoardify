@@ -45,6 +45,14 @@ function showWelcomeModal() {
   modal.style.display = 'block';
 }
 
+// Add message listener for welcome modal
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+  if (request.action === 'showWelcomeModal') {
+    console.log('[Modal] Received show modal request');
+    showWelcomeModal();
+  }
+});
+
 document.addEventListener('DOMContentLoaded', async () => {
   // Add error handler for blank screen
   window.onerror = function(msg, url, lineNo, columnNo, error) {
