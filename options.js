@@ -30,8 +30,50 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
 
     // Save background preference
+    const backgroundPreset = document.getElementById('backgroundPreset');
+    
     backgroundColor.addEventListener('change', (e) => {
-      chrome.storage.local.set({ backgroundColor: e.target.value });
+      console.log('[Background] Color picker changed:', e.target.value);
+      backgroundPreset.value = '';
+      try {
+        chrome.storage.local.set({ backgroundColor: e.target.value }, () => {
+          console.log('[Background] Color saved successfully:', e.target.value);
+        });
+      } catch (error) {
+        console.error('[Background] Error saving color:', error);
+      }
+    });
+
+    backgroundPreset.addEventListener('change', (e) => {
+      console.log('[Background] Preset changed:', e.target.value);
+      try {
+        if (e.target.value) {
+          chrome.storage.local.set({ backgroundColor: e.target.value }, () => {
+            console.log('[Background] Preset saved successfully:', e.target.value);
+          });
+        }
+      } catch (error) {
+        console.error('[Background] Error saving preset:', error);
+      }
+    });
+
+    // Load saved background
+    chrome.storage.local.get(['backgroundColor'], function(result) {
+      console.log('[Background] Loading saved background:', result.backgroundColor);
+      try {
+        if (result.backgroundColor) {
+          if (result.backgroundColor.startsWith('url')) {
+            backgroundPreset.value = result.backgroundColor;
+            console.log('[Background] Loaded preset:', result.backgroundColor);
+          } else {
+            backgroundColor.value = result.backgroundColor;
+            console.log('[Background] Loaded color:', result.backgroundColor);
+          }
+        }
+      } catch (error) {
+        console.error('[Background] Error loading background:', error);
+        backgroundColor.value = '#000000';
+      }
     });
 
     // Save font preferences
