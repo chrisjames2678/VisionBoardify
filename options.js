@@ -57,6 +57,39 @@ document.addEventListener('DOMContentLoaded', async () => {
       }
     });
 
+    const backgroundImage = document.getElementById('backgroundImage');
+    const uploadBackgroundBtn = document.getElementById('uploadBackgroundBtn');
+
+    uploadBackgroundBtn.addEventListener('click', () => {
+      backgroundImage.click();
+    });
+
+    backgroundImage.addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      if (!file.type.startsWith('image/')) {
+        alert('Please select an image file');
+        return;
+      }
+
+      const maxSize = 5 * 1024 * 1024; // 5MB
+      if (file.size > maxSize) {
+        alert('Image must be less than 5MB');
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const imageUrl = `url('${event.target.result}')`;
+        chrome.storage.local.set({ backgroundColor: imageUrl }, () => {
+          console.log('[Background] Custom image saved successfully');
+          backgroundPreset.value = '';
+        });
+      };
+      reader.readAsDataURL(file);
+    });
+
     // Load saved background
     chrome.storage.local.get(['backgroundColor'], function(result) {
       console.log('[Background] Loading saved background:', result.backgroundColor);

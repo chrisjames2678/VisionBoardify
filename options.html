@@ -37,7 +37,7 @@
       <div class="settings-group">
         <h3>Background Settings</h3>
         <div class="setting-group">
-          <label for="backgroundColor">Background Color:</label>
+          <label for="backgroundColor">Background:</label>
           <input type="color" id="backgroundColor" class="color-picker" value="#000000">
           <select id="backgroundPreset" class="settings-select">
             <option value="">Custom Color</option>
@@ -45,6 +45,8 @@
             <option value="url('backgrounds/clouds.jpg')">Cloudy Sky</option>
             <option value="url('backgrounds/ocean.jpg')">Ocean</option>
           </select>
+          <input type="file" id="backgroundImage" accept="image/*" style="display: none;">
+          <button id="uploadBackgroundBtn" class="upload-button">Upload Image</button>
         </div>
       </div>
       <div class="font-settings">
